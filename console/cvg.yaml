@@ -1,0 +1,3 @@
+crossCompilation:
+  # 编译后文件输出目录
+  outputDir: "dist"
