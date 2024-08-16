@@ -2,6 +2,5 @@ go 1.22.4
 
 use (
 	./.
-	./app/modules/admin
-	./app/modules/viptaskapi
+	./app/modules/client
 )

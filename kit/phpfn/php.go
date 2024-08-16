@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"html"
 	"io"
-	"io/ioutil"
 	"math"
 	"math/rand"
 	"net"
@@ -736,17 +735,6 @@ func Filesize(filename string) (int64, error) {
 	return info.Size(), nil
 }
 
-// 写入文件
-func File_put_contents(filename string, data string, mode os.FileMode) error {
-	return ioutil.WriteFile(filename, []byte(data), mode)
-}
-
-// 获取文件内容
-func File_get_contents(filename string) (string, error) {
-	data, err := ioutil.ReadFile(filename)
-	return string(data), err
-}
-
 // copy一个文件
 func Copy(source, dest string) (bool, error) {
 	fd1, err := os.Open(source)
@@ -794,22 +782,6 @@ func Touch(filename string) (bool, error) {
 		return false, err
 	}
 	return true, nil
-}
-
-// 创建目录，如果目录不存在则创建，存在不创建
-func MkDir(dir string, mode os.FileMode) {
-	var err error
-	if _, err = os.Stat(dir); err != nil && os.IsNotExist(err) {
-		if err = os.MkdirAll(dir, mode); err != nil {
-			fmt.Println("创建目录失败：" + dir)
-		}
-	}
-}
-
-// 获取当前工作目录
-func Getcwd() (string, error) {
-	dir, err := os.Getwd()
-	return dir, err
 }
 
 // 返回文件绝对路径

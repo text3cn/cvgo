@@ -10,6 +10,15 @@ import (
 	"strings"
 )
 
+// 获取当前路径（运行命令时所在的目录，切换到哪个目录去运行当前就是哪个目录）
+func Getwd() string {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	return currentDir
+}
+
 // 获取一个绝对路径所属目录
 func Dir(absolutePath string) string {
 	return filepath.Dir(absolutePath)
@@ -49,16 +58,6 @@ func GetSuffix(filename string) string {
 		return ""
 	}
 	return last
-}
-
-// 创建目录
-func MkDir(dir string, mode os.FileMode) {
-	var err error
-	if _, err = os.Stat(dir); err != nil && os.IsNotExist(err) {
-		if err = os.MkdirAll(dir, mode); err != nil {
-			fmt.Println("创建目录失败：" + dir)
-		}
-	}
 }
 
 // 扫描指定目录下所有文件及文件夹
@@ -123,8 +122,9 @@ func IsImage(file *multipart.FileHeader) bool {
 	return strings.HasPrefix(mimeType, "image/")
 }
 
-// 删除给定路径的文件
-// filePath 文件的绝对路径
+// 删除给定路径的文件。
+// 此函数可以删除控目录，但不能删除非空目录
+// filePath 文件的绝对路径或相对路径
 func DeleteFile(filePath string) error {
 	// 检查文件是否存在
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
@@ -133,24 +133,6 @@ func DeleteFile(filePath string) error {
 	// 删除文件
 	if err := os.Remove(filePath); err != nil {
 		return fmt.Errorf("failed to delete file: %v", err)
-	}
-	return nil
-}
-
-// 删除给定的文件或目录，如果不存在则直接返回 nil，如果存在则删除
-func RemoveIfExists(path string) error {
-	// 检查路径是否存在
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		// 路径不存在，直接返回
-		return nil
-	} else if err != nil {
-		// 其他错误，如权限问题
-		return fmt.Errorf("error checking if path exists: %v", err)
-	}
-	// 路径存在，执行删除操作
-	err := os.RemoveAll(path)
-	if err != nil {
-		return fmt.Errorf("error deleting path: %v", err)
 	}
 	return nil
 }
@@ -234,18 +216,6 @@ func CopyFile(src, dst string) error {
 		return err
 	}
 
-	return nil
-}
-
-// EnsureDirExists 确保目标目录存在，如果不存在则创建它
-func EnsureDirExists(dir string) error {
-	// 检查目录是否存在，不存在则创建
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		err := os.MkdirAll(dir, os.ModePerm)
-		if err != nil {
-			return fmt.Errorf("failed to create directory: %v", err)
-		}
-	}
 	return nil
 }
 
@@ -361,4 +331,28 @@ func Rename(oldDir, newDir string) error {
 		return fmt.Errorf("failed to rename directory from %s to %s: %v", oldDir, newDir, err)
 	}
 	return nil
+}
+
+// 判断文件是否存在
+func FileExist(filename string) bool {
+	_, err := os.Stat(filename)
+	return err == nil || os.IsExist(err)
+}
+
+// 创建文件并写入内容
+func FilePutContents(filepath, content string) {
+	// 创建文件
+	file, err := os.Create(filepath)
+	if err != nil {
+		fmt.Println("创建文件 "+filepath+" 失败", err)
+		return
+	}
+	defer file.Close()
+
+	// 写入内容到文件
+	_, err = file.WriteString(content)
+	if err != nil {
+		fmt.Println("往文件 "+filepath+" 写入内容失败", err)
+		return
+	}
 }

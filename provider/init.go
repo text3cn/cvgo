@@ -11,6 +11,7 @@ import (
 )
 
 var Services = core.NewContainer()
+var Plog plog.Service
 
 func init() {
 	Services.Bind(&config.ConfigProvider{})
@@ -19,4 +20,6 @@ func init() {
 	Services.Bind(&redis.RedisProvider{})
 	Services.Bind(&i18n.I18nProvider{})
 	Services.Bind(&localcache.LocalCacheProvider{})
+
+	Plog = Services.NewSingle(plog.Name).(plog.Service)
 }

@@ -1,7 +1,6 @@
 package console
 
 import (
-	"cvgo/console/kit"
 	"cvgo/console/types"
 	"cvgo/kit/filekit"
 	"github.com/silenceper/log"
@@ -33,7 +32,7 @@ func LoadConfig() {
 
 	// 从配置文件加载配置
 	filename := filepath.Join(RootPath, "console", "cvg.yaml")
-	if kit.FileExist(filename) {
+	if filekit.FileExist(filename) {
 		goodCfg := viper.New()
 		goodCfg.AddConfigPath(filepath.Join(RootPath, "console"))
 		goodCfg.SetConfigName("cvg")

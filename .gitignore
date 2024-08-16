@@ -1,6 +1,7 @@
 .idea
-app
-dist
-console/cvg
+./app
+./dist
+./console/cvg.yaml
+./go.work
 
 

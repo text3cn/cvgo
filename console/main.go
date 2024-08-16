@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cvgo/console/commands/create"
 	"cvgo/console/commands/crosscompile"
 	"cvgo/console/commands/daemon"
 	"cvgo/console/commands/hotcompile"
@@ -10,6 +11,7 @@ import (
 )
 
 // go build -o $GOPATH/bin/cvg
+// go build -o $GOPATH/bin/cvg ./console && cvg create module client --webserver=cvgo
 func main() {
 	console.LoadConfig()
 	RunConsole()
@@ -34,6 +36,7 @@ func RunConsole() {
 	hotcompile.AddCommand(command)
 	daemon.AddCommand(command)
 	crosscompile.AddCommand(command)
+	create.AddCommand(command)
 
 	// 命令行运行，执行 RootCommand
 	command.RootCmd.Execute()

@@ -1,7 +1,7 @@
 package daemon
 
 import (
-	"cvgo/console/kit"
+	"cvgo/kit/strkit"
 	"fmt"
 	"os"
 )
@@ -49,7 +49,7 @@ func drawControl() {
 	// http
 	listen := "8000"
 	fmt.Printf("%c[%d;%d;%dm%s%c[0m", 0x1B, style, borderBackground, borderFontColor, "|", 0x1B)
-	fmt.Printf(" Http" + kit.StrRepeat(" ", 15-4) + listen + kit.StrRepeat(" ", 86-45-len(listen)))
+	fmt.Printf(" Http" + strkit.StrRepeat(" ", 15-4) + listen + strkit.StrRepeat(" ", 86-45-len(listen)))
 	if true {
 		fmt.Printf("%c[%d;%d;%dm%s%c[0m", 0x1B, style, 97, statusSuccessFontColor, "ok", 0x1B)
 	} else {
@@ -60,7 +60,7 @@ func drawControl() {
 	// discovery
 	listen = "8888"
 	fmt.Printf("%c[%d;%d;%dm%s%c[0m", 0x1B, style, borderBackground, borderFontColor, "|", 0x1B)
-	fmt.Printf(" Consul" + kit.StrRepeat(" ", 15-6) + listen + kit.StrRepeat(" ", 86-45-len(listen)))
+	fmt.Printf(" Consul" + strkit.StrRepeat(" ", 15-6) + listen + strkit.StrRepeat(" ", 86-45-len(listen)))
 	if true {
 		fmt.Printf("%c[%d;%d;%dm%s%c[0m", 0x1B, style, 97, statusSuccessFontColor, "ok", 0x1B)
 	} else {

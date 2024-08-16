@@ -1,5 +1,10 @@
 package plog
 
+import (
+	"fmt"
+	"github.com/spf13/cast"
+)
+
 const (
 	// 前景颜色
 	black  = "\033[30m"
@@ -10,6 +15,15 @@ const (
 	pink   = "\033[35m"
 	cyan   = "\033[36m"
 	gray   = "\033[37m"
+
+	ColorBlack  = black
+	ColorRed    = red
+	ColorGreen  = green
+	ColorYellow = yellow
+	ColorBlue   = blue
+	ColorPink   = pink
+	ColorCyan   = cyan
+	ColorGray   = gray
 
 	// 背景颜色
 	blackBG  = "\033[40m"
@@ -43,55 +57,89 @@ const (
 )
 
 // 红色
-func Red(output interface{}) {
-	plogSvc.Color(red, output)
+func RedPrintln(output ...any) {
+	colorPirntln(red, output...)
 }
-
-func Redf(output ...interface{}) {
-	plogSvc.Colorf(red, output...)
+func RedPrintf(str string, v ...any) {
+	colorPrintf(red, str, v...)
+}
+func RedSprintf(str any, rest ...string) string {
+	return colorSprintf(red, str, rest...)
 }
 
 // 紫色
-func Pink(output interface{}) {
-	plogSvc.Color(pink, output)
+func PinkPrintln(output ...any) {
+	colorPirntln(pink, output...)
 }
-
-func Pinkf(output ...interface{}) {
-	plogSvc.Colorf(pink, output...)
+func PinkPrintf(str string, v ...any) {
+	colorPrintf(pink, str, v...)
+}
+func PinkSprintf(str any, rest ...string) string {
+	return colorSprintf(pink, str, rest...)
 }
 
 // 绿色
-func Green(output interface{}) {
-	plogSvc.Color(green, output)
+func GreenPrintln(output ...any) {
+	colorPirntln(green, output...)
 }
-
-func Greenf(output ...interface{}) {
-	plogSvc.Colorf(green, output...)
+func GreenPrintf(str string, v ...any) {
+	colorPrintf(green, str, v...)
+}
+func GreenSprintf(str any, rest ...string) string {
+	return colorSprintf(green, str, rest...)
 }
 
 // 青色
-func Cyan(output interface{}) {
-	plogSvc.Color(cyan, output)
+func CyanPrintln(output ...any) {
+	colorPirntln(cyan, output...)
 }
-
-func Cyanf(output ...interface{}) {
-	plogSvc.Colorf(cyan, output...)
+func CyanPrintf(str string, v ...any) {
+	colorPrintf(cyan, str, v...)
+}
+func CyanSprintf(str any, rest ...string) string {
+	return colorSprintf(cyan, str, rest...)
 }
 
 // 蓝色
-func Blue(output interface{}) {
-	plogSvc.Color(blue, output)
+func BluePrintln(output ...any) {
+	colorPirntln(blue, output...)
 }
-
-func Bluef(output ...interface{}) {
-	plogSvc.Colorf(blue, output...)
+func BluePrintf(str string, v ...any) {
+	colorPrintf(blue, str, v...)
+}
+func BlueSprintf(str any, rest ...string) string {
+	return colorSprintf(blue, str, rest...)
 }
 
 // 黄色
-func Yellow(output interface{}) {
-	plogSvc.Color(yellow, output)
+func YellowPrintln(output ...any) {
+	colorPirntln(yellow, output...)
+}
+func YellowPrintf(str string, v ...any) {
+	colorPrintf(yellow, str, v...)
+}
+func YellowSprintf(str any, rest ...string) string {
+	return colorSprintf(yellow, str, rest...)
 }
 
-func Yellowf(output ...interface{}) {
-	plogSvc.Colorf(yellow, output...)
+func colorPirntln(color string, output ...any) {
+	//fmt.Println(yellow+" %v "+reset, str)
+	var str string
+	if len(output) > 0 {
+		for _, v := range output {
+			str = str + cast.ToString(v) + " "
+		}
+	}
+	fmt.Println(color + str + reset)
+}
+func colorPrintf(color string, str string, v ...any) {
+	fmt.Printf(color+str+reset, v...)
+}
+
+func colorSprintf(color string, str any, rest ...string) string {
+	restColor := reset
+	if len(rest) > 0 {
+		restColor = rest[0]
+	}
+	return fmt.Sprintf(color+" %v "+restColor, str)
 }

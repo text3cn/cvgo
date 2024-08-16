@@ -2,8 +2,8 @@ package daemon
 
 import (
 	"cvgo/console/console"
-	"cvgo/console/kit"
 	"cvgo/console/types"
+	"cvgo/kit/filekit"
 	"github.com/sevlyar/go-daemon"
 	"github.com/silenceper/log"
 	"github.com/spf13/cobra"
@@ -24,7 +24,7 @@ func AddCommand(command *types.Command) {
 	cfg = types.DaemonProcessConfig{RuntimePath: "./runtime"}
 	// 从配置文件加载配置
 	filename, _ := filepath.Abs("./app.yaml")
-	if kit.FileExist(filename) {
+	if filekit.FileExist(filename) {
 		appCfg := viper.New()
 		appCfg.AddConfigPath(console.RootPath)
 		appCfg.SetConfigName("app")
@@ -84,7 +84,7 @@ func AddCommand(command *types.Command) {
 // 因此需要将子进程的输出保存到文件中。
 func forkSelf() {
 	runtimePath := cfg.RuntimePath
-	kit.MkDir(runtimePath, 0777)
+	filekit.MkDir(runtimePath, 0777)
 	ctx := &daemon.Context{
 		PidFileName: filepath.Join(runtimePath, targetProgrameName+".pid"),
 		PidFilePerm: 0644,

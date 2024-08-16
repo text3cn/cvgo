@@ -2,7 +2,6 @@ package crosscompile
 
 import (
 	"cvgo/console/console"
-	"cvgo/console/kit"
 	"cvgo/console/types"
 	"cvgo/kit/filekit"
 	"cvgo/kit/gokit"
@@ -30,7 +29,7 @@ func AddCommand(command *types.Command) {
 
 				// 创建目录
 				if console.CrossCompileCfg.OutputDir != "./" {
-					kit.MkDir(console.CrossCompileCfg.OutputDir, 0777)
+					filekit.MkDir(console.CrossCompileCfg.OutputDir, 0777)
 				}
 				var err error
 				moduleName, err = gokit.GetModuleName()
