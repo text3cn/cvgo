@@ -34,8 +34,8 @@ var ignoredFilesRegExps = []string{
 func AddCommand(command *types.Command) {
 	// 一级命令
 	dev := &cobra.Command{
-		Use:   "dev",
-		Short: "Hot compilation",
+		Use:   "watch",
+		Short: "自动编译",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) > 0 {
 				console.BuildPkg = args[0]
@@ -164,7 +164,10 @@ func Autobuild(files []string) {
 
 	log.Infof("Start building...\n")
 
-	if err := os.Chdir(console.RootPath); err != nil {
+	pwd, _ := os.Getwd()
+	fmt.Println(pwd)
+
+	if err := os.Chdir(pwd); err != nil {
 		log.Errorf("Chdir Error: %+v\n", err)
 		return
 	}

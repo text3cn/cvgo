@@ -25,5 +25,5 @@ func GetModuleName() (string, error) {
 	if err := scanner.Err(); err != nil {
 		return "", err
 	}
-	return "", fmt.Errorf("module name not found in go.mod")
+	return "", fmt.Errorf("获取模块名称出错，当前目录找不到 go.mod 文件")
 }

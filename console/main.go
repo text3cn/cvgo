@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra" // https://github.com/spf13/cobra
 )
 
+// go build -o $GOPATH/bin/cvg
 func main() {
 	console.LoadConfig()
 	RunConsole()
@@ -19,7 +20,7 @@ func RunConsole() {
 		// 定义根命令的关键字
 		Use: "cvg",
 		// 简短介绍
-		Short: "CVGO Development Tool",
+		Short: "Cvgo 配套开发工具",
 		// 根命令的执行函数
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.InitDefaultHelpFlag()

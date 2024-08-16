@@ -27,7 +27,7 @@ func JsonDecodeToMapArray(str string) []map[string]interface{} {
 	var thisMap []map[string]interface{}
 	var err error
 	if err = json.Unmarshal([]byte(str), &thisMap); err != nil {
-		fmt.Printf("Json反序列化为Map出错: %s\n", err.Error())
+		fmt.Printf("Json反序列化为Map出错: %s\n", err.Error(), str)
 		return nil
 	}
 	return thisMap

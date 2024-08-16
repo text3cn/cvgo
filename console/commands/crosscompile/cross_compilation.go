@@ -19,7 +19,7 @@ var moduleName string
 func AddCommand(command *types.Command) {
 	dev := &cobra.Command{
 		Use:   "build",
-		Short: "Hot compilation",
+		Short: "自动编译",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) > 0 {
 				platform := args[0]
@@ -27,6 +27,7 @@ func AddCommand(command *types.Command) {
 					log.Error("Platform not support")
 					return
 				}
+
 				// 创建目录
 				if console.CrossCompileCfg.OutputDir != "./" {
 					kit.MkDir(console.CrossCompileCfg.OutputDir, 0777)
@@ -34,7 +35,7 @@ func AddCommand(command *types.Command) {
 				var err error
 				moduleName, err = gokit.GetModuleName()
 				if err != nil {
-					log.Error("获取模块名称出错")
+					log.Error(err.Error())
 				}
 				if err != nil {
 					log.Errorf("Get module name fail: %s\n", err)
@@ -91,6 +92,7 @@ func build(goods, goarch, pkg string) {
 }
 
 // TODO 对 internal 里面的配置文件提取出来进行合并到最外层
+// TODO 如果存在 i18n 目录，则将其拷贝过去
 // viper 提供了 viper.WriteConfigAs("new_config.yaml") 将内存中的配置再存为文件。
 func copyConfig() {
 	// 公共配置
