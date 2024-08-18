@@ -53,7 +53,7 @@ func mergerLevel2(source *viper.Viper) (ret map[string]map[string]interface{}) {
 	return
 }
 
-func (self *ConfigService) getDefaultConfig() (*viper.Viper, error) {
+func (self *ConfigService) getAppConfig() (*viper.Viper, error) {
 	cfg, err := self.LoadConfig("app.yaml")
 	return cfg, err
 }

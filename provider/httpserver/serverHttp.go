@@ -3,6 +3,7 @@ package httpserver
 import (
 	"cvgo/provider/config"
 	"cvgo/provider/core"
+	"cvgo/provider/core/types"
 	"embed"
 	"errors"
 	"fmt"
@@ -126,6 +127,13 @@ func (self *Engine) ServeHTTP(response http.ResponseWriter, request *http.Reques
 	}
 	if strings.HasPrefix(request.URL.Path, "/swagger") {
 		self.handelSwaggerUI(request, response)
+		return
+	}
+
+	// 静态资源服务
+	fileServerCfg := self.config.GetFileServer()
+	if fileServerCfg != (types.FileSeverConfig{}) {
+		http.StripPrefix(fileServerCfg.Route, http.FileServer(http.Dir(fileServerCfg.Path))).ServeHTTP(response, request)
 		return
 	}
 

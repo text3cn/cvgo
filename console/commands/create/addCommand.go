@@ -4,13 +4,13 @@ import (
 	"cvgo/console/types"
 	"cvgo/provider"
 	"cvgo/provider/clog"
-	"cvgo/provider/config"
 	"fmt"
 	"github.com/spf13/cobra"
 )
 
 var log = provider.Services.NewSingle(clog.Name).(clog.Service)
-var cfg = provider.Services.NewSingle(config.Name).(config.Service)
+
+//var cfg = provider.Services.NewSingle(config.Name).(config.Service)
 
 func AddCommand(command *types.Command) {
 	// 一级命令

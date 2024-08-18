@@ -42,6 +42,8 @@ type Service interface {
 	GetCLog() types.Clog
 	SetCurrentPath(path string)
 	GetSwagger() types.SwaggerConfig
+	GetEtcd() types.EtcdConfig
+	GetFileServer() types.FileSeverConfig
 }
 
 // 设置(篡改)当前工作路径，以便特殊路径在运行程序时按规则找配置文件。
@@ -151,7 +153,7 @@ func (self *ConfigService) Get(key string) *castkit.GoodleVal {
 
 func (self *ConfigService) IsDebug() bool {
 	key := "debug"
-	if cfg, _ := self.getDefaultConfig(); cfg != nil {
+	if cfg, _ := self.getAppConfig(); cfg != nil {
 		if cfg.IsSet(key) {
 			if val, ok := cfg.Get(key).(bool); !ok {
 				panic("The configuration of " + key + " is not a valid value")
@@ -166,7 +168,7 @@ func (self *ConfigService) IsDebug() bool {
 // http 服务监听段口
 func (self *ConfigService) GetHttpPort() (port string) {
 	key := "server.http-port"
-	if cfg, _ := self.getDefaultConfig(); cfg != nil {
+	if cfg, _ := self.getAppConfig(); cfg != nil {
 		if value, ok := cfg.Get(key).(int); !ok {
 			panic("The configuration of " + key + " is not a valid value")
 		} else {
@@ -179,7 +181,7 @@ func (self *ConfigService) GetHttpPort() (port string) {
 // runtime 目录
 func (self *ConfigService) GetRuntimePath() string {
 	key := "runtime.path"
-	if cfg, _ := self.getDefaultConfig(); cfg != nil {
+	if cfg, _ := self.getAppConfig(); cfg != nil {
 		if cfg.IsSet(key) {
 			if val, ok := cfg.Get(key).(string); !ok {
 				panic("The configuration of " + key + " is not a valid value")
@@ -222,7 +224,7 @@ func (self *ConfigService) GetRedis() (configs map[string]types.RedisConfig) {
 }
 
 func (self *ConfigService) GetCLog() (config types.Clog) {
-	if cfg, _ := self.getDefaultConfig(); cfg != nil {
+	if cfg, _ := self.getAppConfig(); cfg != nil {
 		value := cfg.Get("clog")
 		mapstructure.Decode(value, &config)
 	} else {
@@ -232,8 +234,24 @@ func (self *ConfigService) GetCLog() (config types.Clog) {
 }
 
 func (self *ConfigService) GetSwagger() (config types.SwaggerConfig) {
-	if cfg, _ := self.getDefaultConfig(); cfg != nil {
+	if cfg, _ := self.getAppConfig(); cfg != nil {
 		value := cfg.Get("swagger")
+		mapstructure.Decode(value, &config)
+	}
+	return
+}
+
+func (self *ConfigService) GetEtcd() (config types.EtcdConfig) {
+	if cfg, _ := self.getAppConfig(); cfg != nil {
+		value := cfg.Get("etcd")
+		mapstructure.Decode(value, &config)
+	}
+	return
+}
+
+func (self *ConfigService) GetFileServer() (config types.FileSeverConfig) {
+	if cfg, _ := self.getAppConfig(); cfg != nil {
+		value := cfg.Get("fileServer")
 		mapstructure.Decode(value, &config)
 	}
 	return

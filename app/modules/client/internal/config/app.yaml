@@ -3,3 +3,8 @@ server:
 
 swagger:
   filepath: ./docs/swagger.json
+
+fileServer:
+  route: /static
+  path: ./static
+
