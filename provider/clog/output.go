@@ -1,4 +1,4 @@
-package plog
+package clog
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func (self *PlogService) output(level byte, v ...interface{}) error {
+func (self *ClogService) output(level byte, v ...interface{}) error {
 	// calldepth 层次说明：本函数（第一层） -> service.go（第二层） -> level.go（第三层）-> 用户调用时（第四层）
 	// 最后一个参数可以传 deep:number 来设置层数，例如：deep:5
 	length := len(v)
@@ -50,7 +50,7 @@ func (self *PlogService) output(level byte, v ...interface{}) error {
 	return _log.Output(calldepth, str)
 }
 
-func (s *PlogService) P(color string, data any) {
+func (s *ClogService) P(color string, data any) {
 	_log := log.New(os.Stderr, "", log.Lshortfile|log.LstdFlags)
 	calldepth := 4
 	// 类型

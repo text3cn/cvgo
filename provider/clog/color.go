@@ -1,4 +1,4 @@
-package plog
+package clog
 
 import (
 	"fmt"

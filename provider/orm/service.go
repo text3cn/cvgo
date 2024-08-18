@@ -1,9 +1,10 @@
 package orm
 
 import (
+	plog2 "cvgo/provider/clog"
 	"cvgo/provider/config"
 	"cvgo/provider/core"
-	plog2 "cvgo/provider/plog"
+	"cvgo/provider/core/types"
 	"database/sql"
 	"github.com/spf13/cast"
 	"gorm.io/driver/mysql"
@@ -23,7 +24,7 @@ type OrmService struct {
 	Service
 	c        core.Container
 	dbs      map[string]*gorm.DB // key 为 dsn, value 为 gorm.DB（连接池）
-	dbConfig map[string]core.DBConfig
+	dbConfig map[string]types.DBConfig
 	plog     plog2.Service
 	lock     sync.Mutex
 	cfgSvc   config.Service
@@ -93,7 +94,7 @@ func (self *OrmService) init() {
 	}
 }
 
-func mysqlOpen(config core.DBConfig) gorm.Dialector {
+func mysqlOpen(config types.DBConfig) gorm.Dialector {
 	//isDebug := config.Debug
 	return mysql.New(mysql.Config{
 		DSN:                       formatDsn(config),
@@ -107,7 +108,7 @@ func mysqlOpen(config core.DBConfig) gorm.Dialector {
 
 // 生成 dsn
 // https://gorm.io/zh_CN/docs/connecting_to_the_database.html
-func formatDsn(conf core.DBConfig) (dsn string) {
+func formatDsn(conf types.DBConfig) (dsn string) {
 	// dsn := "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
 	dsn += conf.Username + ":" + conf.Password
 	dsn += "@" + conf.Protocol + "(" + conf.Host + ":" + strconv.Itoa(conf.Port) + ")"

@@ -1,6 +1,7 @@
 package filekit
 
 import (
+	"bufio"
 	"cvgo/kit/strkit"
 	"fmt"
 	"io"
@@ -355,4 +356,59 @@ func FilePutContents(filepath, content string) {
 		fmt.Println("往文件 "+filepath+" 写入内容失败", err)
 		return
 	}
+}
+
+// AppendToFile 读取文件内容，追加新内容并写回文件
+func FileAppendContent(filepath string, contentToAppend string) error {
+	// 读取文件内容
+	fileContent, err := os.ReadFile(filepath)
+	if err != nil {
+		return fmt.Errorf("无法读取文件: %w", err)
+	}
+	// 追加新内容
+	newContent := string(fileContent) + contentToAppend
+	// 将新内容写回文件
+	err = os.WriteFile(filepath, []byte(newContent), 0644)
+	if err != nil {
+		return fmt.Errorf("无法写入文件: %w", err)
+	}
+	return nil
+}
+
+// AddContentAboveLine 匹配指定行，在它前面添加内容
+func AddContentAboveLine(filepath, matchLine, content string) error {
+	// 打开文件进行读取
+	file, err := os.Open(filepath)
+	if err != nil {
+		return fmt.Errorf("无法打开文件: %w", err)
+	}
+	defer file.Close()
+
+	// 创建一个新的内容容器
+	var newContent strings.Builder
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// 如果找到 func main() 行，先添加注释
+		if strings.HasPrefix(line, matchLine) {
+			newContent.WriteString(content)
+		}
+
+		// 将当前行添加到新的内容中
+		newContent.WriteString(line + "\n")
+	}
+
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("读取文件时出错: %w", err)
+	}
+
+	// 将新的内容写回文件
+	err = os.WriteFile(filepath, []byte(newContent.String()), 0644)
+	if err != nil {
+		return fmt.Errorf("无法写入文件: %w", err)
+	}
+
+	return nil
 }

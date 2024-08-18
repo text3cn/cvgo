@@ -1,4 +1,4 @@
-package plog
+package clog
 
 import (
 	"cvgo/provider/config"
@@ -6,27 +6,28 @@ import (
 	"strings"
 )
 
-const Name = "plog"
+const Name = "clog"
 
-type PlogProvider struct {
+type ClogProvider struct {
 	core.ServiceProvider // 显示的写上实现了哪个接口主要是为了代码可读性以及 IDE 友好
 	level                byte
 }
 
-func (self *PlogProvider) Name() string {
+func (self *ClogProvider) Name() string {
 	return Name
 }
 
 // 日志服务不需要延迟初始化，启动程序就需要打印日志了
-func (*PlogProvider) InitOnBind() bool {
+func (*ClogProvider) InitOnBind() bool {
 	return true
 }
 
 // 往服务中心注册自己前的操作
-func (self *PlogProvider) BeforeInit(c core.Container) error {
+func (self *ClogProvider) BeforeInit(c core.Container) error {
 	var level byte
 	configSvs := c.NewSingle(config.Name).(config.Service)
-	config := configSvs.GetPLog()
+	config := configSvs.GetCLog()
+
 	switch strings.ToLower(config.Level) {
 	case "trace":
 		level = 0
@@ -49,23 +50,23 @@ func (self *PlogProvider) BeforeInit(c core.Container) error {
 	return nil
 }
 
-func (sp *PlogProvider) Params(c core.Container) []interface{} {
+func (sp *ClogProvider) Params(c core.Container) []interface{} {
 	return []interface{}{c}
 }
 
-func (self *PlogProvider) RegisterProviderInstance(c core.Container) core.NewInstanceFunc {
+func (self *ClogProvider) RegisterProviderInstance(c core.Container) core.NewInstanceFunc {
 	return func(params ...interface{}) (interface{}, error) {
 		// 这里需要将参数展开，将配置注入到日志类，例如日志开关等
 		//c := params[0].(core.Container)
-		//if plogSvc != nil {
-		//	return plogSvc, nil
+		//if clogSvc != nil {
+		//	return clogSvc, nil
 		//}
-		plogSvc = &PlogService{c: c, level: self.level}
-		return plogSvc, nil
+		clogSvc = &ClogService{c: c, level: self.level}
+		return clogSvc, nil
 	}
 
 }
 
-func (*PlogProvider) AfterInit(instance any) error {
+func (*ClogProvider) AfterInit(instance any) error {
 	return nil
 }

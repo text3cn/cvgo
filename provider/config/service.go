@@ -5,6 +5,7 @@ import (
 	"cvgo/kit/filekit"
 	"cvgo/kit/strkit"
 	"cvgo/provider/core"
+	"cvgo/provider/core/types"
 	"errors"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cast"
@@ -36,10 +37,11 @@ type Service interface {
 	Get(key string) *castkit.GoodleVal
 	GetHttpPort() string
 	GetRuntimePath() string
-	GetDatabase() (dbsCfg map[string]core.DBConfig)
-	GetRedis() map[string]core.RedisConfig
-	GetPLog() core.Plog
+	GetDatabase() (dbsCfg map[string]types.DBConfig)
+	GetRedis() map[string]types.RedisConfig
+	GetCLog() types.Clog
 	SetCurrentPath(path string)
+	GetSwagger() types.SwaggerConfig
 }
 
 // 设置(篡改)当前工作路径，以便特殊路径在运行程序时按规则找配置文件。
@@ -63,13 +65,14 @@ func (self *ConfigService) LoadConfig(filename string) (*viper.Viper, error) {
 	parentDir := filepath.Dir(self.currentPath)
 	parentDir = filepath.Dir(parentDir)
 	parentDir = filepath.Dir(parentDir)
-	commonConfigPath = filepath.Join(parentDir, "config")
-	if exists, _ := filekit.PathExists(commonConfigPath); exists {
-		commonConfig = loadConfigFile(commonConfigPath, fName, fType)
+	commonConfigDir := filepath.Join(parentDir, "config")
+	commonConfigFile := filepath.Join(parentDir, "config", filename)
+	if exists, _ := filekit.PathExists(commonConfigFile); exists {
+		commonConfig = loadConfigFile(commonConfigDir, fName, fType)
 		retConfig = commonConfig
 	}
 
-	// 在可执行文件当前目录找配置文件
+	// 在可执行文件当前目录找配置文件（生产部署时通常最顶级配置为当前目录）
 	if exists, _ := filekit.PathExists(filepath.Join(self.currentPath, cfgFile)); exists {
 		appConfig = loadConfigFile(self.currentPath, fName, fType)
 	}
@@ -188,8 +191,8 @@ func (self *ConfigService) GetRuntimePath() string {
 	return self.currentPath
 }
 
-func (self *ConfigService) GetDatabase() (dbsCfg map[string]core.DBConfig) {
-	dbsCfg = make(map[string]core.DBConfig)
+func (self *ConfigService) GetDatabase() (dbsCfg map[string]types.DBConfig) {
+	dbsCfg = make(map[string]types.DBConfig)
 	cfg, err := self.LoadConfig("database.yaml")
 	if err != nil {
 		panic(err)
@@ -197,20 +200,20 @@ func (self *ConfigService) GetDatabase() (dbsCfg map[string]core.DBConfig) {
 	}
 	cfgNodes := mergerLevel2(cfg)
 	for k, v := range cfgNodes {
-		item := core.DBConfig{}
+		item := types.DBConfig{}
 		mapstructure.Decode(v, &item)
 		dbsCfg[k] = item
 	}
 	return
 }
 
-func (self *ConfigService) GetRedis() (configs map[string]core.RedisConfig) {
-	configs = make(map[string]core.RedisConfig)
+func (self *ConfigService) GetRedis() (configs map[string]types.RedisConfig) {
+	configs = make(map[string]types.RedisConfig)
 	cfg, _ := self.LoadConfig("redis.yaml")
 	if cfg != nil {
 		cfgNodes := mergerLevel2(cfg)
 		for k, v := range cfgNodes {
-			item := core.RedisConfig{}
+			item := types.RedisConfig{}
 			mapstructure.Decode(v, &item)
 			configs[k] = item
 		}
@@ -218,9 +221,19 @@ func (self *ConfigService) GetRedis() (configs map[string]core.RedisConfig) {
 	return
 }
 
-func (self *ConfigService) GetPLog() (config core.Plog) {
+func (self *ConfigService) GetCLog() (config types.Clog) {
 	if cfg, _ := self.getDefaultConfig(); cfg != nil {
-		value := cfg.Get("plog")
+		value := cfg.Get("clog")
+		mapstructure.Decode(value, &config)
+	} else {
+		config.Level = "trace" // 默认输出所有级别日志
+	}
+	return
+}
+
+func (self *ConfigService) GetSwagger() (config types.SwaggerConfig) {
+	if cfg, _ := self.getDefaultConfig(); cfg != nil {
+		value := cfg.Get("swagger")
 		mapstructure.Decode(value, &config)
 	}
 	return

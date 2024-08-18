@@ -1,18 +1,16 @@
 package create
 
 import (
-	"bufio"
 	"cvgo/console/types"
-	"cvgo/kit/filekit"
 	"cvgo/provider"
-	"cvgo/provider/plog"
+	"cvgo/provider/clog"
+	"cvgo/provider/config"
 	"fmt"
 	"github.com/spf13/cobra"
-	"os"
-	"strings"
 )
 
-var log = provider.Services.NewSingle(plog.Name).(plog.Service)
+var log = provider.Services.NewSingle(clog.Name).(clog.Service)
+var cfg = provider.Services.NewSingle(config.Name).(config.Service)
 
 func AddCommand(command *types.Command) {
 	// 一级命令
@@ -28,7 +26,11 @@ func AddCommand(command *types.Command) {
 
 	// 绑定 flags
 	var webserver string
-	lv1.PersistentFlags().StringVar(&webserver, "webserver", "", "使用 Web 服务框架")
+	var force bool
+	var swagger bool
+	lv1.PersistentFlags().StringVar(&webserver, "webserver", "", "使用 Web 框架")
+	lv1.PersistentFlags().BoolVar(&force, "force", false, "强制创建，如果模块已存在会先删除")
+	lv1.PersistentFlags().BoolVar(&swagger, "swagger", false, "Swagger 文档支持")
 
 	// 二级命令
 	lv1.AddCommand(&cobra.Command{
@@ -41,33 +43,10 @@ func AddCommand(command *types.Command) {
 				fmt.Println("命令不完整，请执行 cvg create module --help 查看帮助")
 				return
 			}
-			if goOn := deleteBeforeCreate(); goOn == false {
-				fmt.Println("你取消了操作")
-				return
-			}
-			for _, arg := range args {
-				createModule(arg)
+			for _, moduleName := range args {
+				createModule(moduleName, webserver, swagger, force)
 			}
 		},
 	})
 	command.RootCmd.AddCommand(lv1)
-}
-
-func deleteBeforeCreate() (delete bool) {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print(plog.YellowSprintf("⚠️ 当前开启了创建模块之前先删除 app 目录和 go.work 文件。是否继续操作？(yes/no) [default:" + plog.BlueSprintf("yes", plog.ColorCyan) + "]:"))
-	input, _ := reader.ReadString('\n')
-	input = strings.TrimSpace(strings.ToLower(input))
-	if input == "yes" {
-		delete = true
-	} else if input == "no" {
-		delete = false
-	} else {
-		delete = true
-	}
-	if delete {
-		filekit.DeleteDirOrFile("./app")
-		filekit.DeleteDirOrFile("./go.work")
-	}
-	return
 }

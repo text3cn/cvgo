@@ -1,6 +1,8 @@
-package core
+package types
 
-type BeforStartCallback func(c Container)
+import "cvgo/provider/core"
+
+type BeforStartCallback func(c core.Container)
 
 // DBConfig 代表数据库连接的所有配置
 type DBConfig struct {
@@ -29,17 +31,8 @@ type DBConfig struct {
 	ConnMaxIdletime string `mapstructure:"conn_max_idletime"` // 空闲最大生命周期
 }
 
-// Redis 配置
-type RedisConfig struct {
-	DefaultConn string `mapstructure:"default_conn"`
-	Host        string
-	Port        int
-	Auth        string
-	Db          int
-}
-
-// plog 配置
-type Plog struct {
+// clog 配置
+type Clog struct {
 	Level string
 }
 

@@ -1,9 +1,9 @@
 package orm
 
 import (
+	plog2 "cvgo/provider/clog"
 	"cvgo/provider/config"
 	"cvgo/provider/core"
-	plog2 "cvgo/provider/plog"
 	"sync"
 )
 

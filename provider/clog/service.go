@@ -1,4 +1,4 @@
-package plog
+package clog
 
 import (
 	"cvgo/provider/core"
@@ -6,9 +6,9 @@ import (
 	"github.com/spf13/cast"
 )
 
-var plogSvc *PlogService
+var clogSvc *ClogService
 
-type PlogService struct {
+type ClogService struct {
 	Service
 	c     core.Container
 	level byte
@@ -46,14 +46,14 @@ type Service interface {
 }
 
 // trace
-func (self *PlogService) Trace(out ...interface{}) {
+func (self *ClogService) Trace(out ...interface{}) {
 	if self.level > trace {
 		return
 	}
 	self.output(trace, out...)
 }
 
-func (self *PlogService) Tracef(out ...interface{}) {
+func (self *ClogService) Tracef(out ...interface{}) {
 	if self.level > trace {
 		return
 	}
@@ -61,14 +61,14 @@ func (self *PlogService) Tracef(out ...interface{}) {
 }
 
 // debug
-func (self *PlogService) Debug(out ...interface{}) {
+func (self *ClogService) Debug(out ...interface{}) {
 	if self.level > debug {
 		return
 	}
 	self.output(debug, out...)
 }
 
-func (self *PlogService) Debugf(out ...interface{}) {
+func (self *ClogService) Debugf(out ...interface{}) {
 	if self.level > debug {
 		return
 	}
@@ -76,14 +76,14 @@ func (self *PlogService) Debugf(out ...interface{}) {
 }
 
 // info
-func (self *PlogService) Info(out ...interface{}) {
+func (self *ClogService) Info(out ...interface{}) {
 	if self.level > info {
 		return
 	}
 	self.output(info, out...)
 }
 
-func (self *PlogService) Infof(out ...interface{}) {
+func (self *ClogService) Infof(out ...interface{}) {
 	if self.level > info {
 		return
 	}
@@ -91,14 +91,14 @@ func (self *PlogService) Infof(out ...interface{}) {
 }
 
 // warn
-func (self *PlogService) Warn(out ...interface{}) {
+func (self *ClogService) Warn(out ...interface{}) {
 	if self.level > warn {
 		return
 	}
 	self.output(warn, out...)
 }
 
-func (self *PlogService) Warnf(out ...interface{}) {
+func (self *ClogService) Warnf(out ...interface{}) {
 	if self.level > warn {
 		return
 	}
@@ -106,14 +106,14 @@ func (self *PlogService) Warnf(out ...interface{}) {
 }
 
 // err
-func (self *PlogService) Error(out ...interface{}) {
+func (self *ClogService) Error(out ...interface{}) {
 	if self.level > err {
 		return
 	}
 	self.output(err, out...)
 }
 
-func (self *PlogService) Errorf(out ...interface{}) {
+func (self *ClogService) Errorf(out ...interface{}) {
 	if self.level > err {
 		return
 	}
@@ -121,14 +121,14 @@ func (self *PlogService) Errorf(out ...interface{}) {
 }
 
 // fatal
-func (self *PlogService) Fatal(out ...interface{}) {
+func (self *ClogService) Fatal(out ...interface{}) {
 	if self.level > fatal {
 		return
 	}
 	self.output(fatal, out...)
 }
 
-func (self *PlogService) Fatalf(out ...interface{}) {
+func (self *ClogService) Fatalf(out ...interface{}) {
 	if self.level > fatal {
 		return
 	}
@@ -136,10 +136,10 @@ func (self *PlogService) Fatalf(out ...interface{}) {
 }
 
 // color
-func (s *PlogService) Color(color string, output interface{}) {
-	plogSvc.P(color, output)
+func (s *ClogService) Color(color string, output interface{}) {
+	clogSvc.P(color, output)
 }
 
-func (s *PlogService) Colorf(color string, out ...interface{}) {
-	plogSvc.P(color, fmt.Sprintf(cast.ToString(out[0]), out[1:]...))
+func (s *ClogService) Colorf(color string, out ...interface{}) {
+	clogSvc.P(color, fmt.Sprintf(cast.ToString(out[0]), out[1:]...))
 }

@@ -2,13 +2,13 @@ package orm
 
 import (
 	"context"
-	plpg2 "cvgo/provider/plog"
+	plpg2 "cvgo/provider/clog"
 	"time"
 )
 
 // 自定义 gorm 的日志实现类, 实现了 gorm.Logger.Interface
 type OrmLogger struct {
-	logger *plpg2.PlogService
+	logger *plpg2.ClogService
 }
 
 // NewOrmLogger 初始化一个ormLogger,

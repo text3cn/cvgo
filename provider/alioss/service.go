@@ -3,6 +3,7 @@ package alioss
 import (
 	"cvgo/provider/config"
 	"cvgo/provider/core"
+	"cvgo/provider/core/types"
 	"github.com/redis/go-redis/v9" // https://redis.uptrace.dev/zh/guide
 	"github.com/spf13/cast"
 	"sync"
@@ -22,7 +23,7 @@ type AliossService struct {
 	clients     map[string]*redis.Client
 	lock        sync.Mutex
 	cfgSvc      config.Service
-	redisConfig map[string]core.RedisConfig
+	redisConfig map[string]types.RedisConfig
 }
 
 // 如果能获取到配置文件则进行连接，

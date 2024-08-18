@@ -1,0 +1,4 @@
+debug: true # 是否调试模式，通过 cfgSvc.IsDebug() 获取
+
+clog:
+  level: trace # 日志从低到高：trace debug info warn error fatal off
