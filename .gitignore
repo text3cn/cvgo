@@ -1,7 +1,6 @@
 .idea
-./app
-./dist
-./console/cvg.yaml
-./go.work
-
-
+dist
+console/cvg.yaml
+go.work
+console/runtime.json
+/app

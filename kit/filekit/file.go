@@ -341,11 +341,15 @@ func FileExist(filename string) bool {
 }
 
 // 创建文件并写入内容
-func FilePutContents(filepath, content string) {
+func FilePutContents(filePath, content string) {
+	// 确保目录存在
+	dir := filepath.Dir(filePath)
+	EnsureDirExists(dir)
+
 	// 创建文件
-	file, err := os.Create(filepath)
+	file, err := os.Create(filePath)
 	if err != nil {
-		fmt.Println("创建文件 "+filepath+" 失败", err)
+		fmt.Println("创建文件 "+filePath+" 失败", err)
 		return
 	}
 	defer file.Close()
@@ -353,7 +357,7 @@ func FilePutContents(filepath, content string) {
 	// 写入内容到文件
 	_, err = file.WriteString(content)
 	if err != nil {
-		fmt.Println("往文件 "+filepath+" 写入内容失败", err)
+		fmt.Println("往文件 "+filePath+" 写入内容失败", err)
 		return
 	}
 }
@@ -391,13 +395,51 @@ func AddContentAboveLine(filepath, matchLine, content string) error {
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		// 如果找到 func main() 行，先添加注释
+		// 匹配指定行
 		if strings.HasPrefix(line, matchLine) {
 			newContent.WriteString(content)
 		}
 
 		// 将当前行添加到新的内容中
 		newContent.WriteString(line + "\n")
+	}
+
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("读取文件时出错: %w", err)
+	}
+
+	// 将新的内容写回文件
+	err = os.WriteFile(filepath, []byte(newContent.String()), 0644)
+	if err != nil {
+		return fmt.Errorf("无法写入文件: %w", err)
+	}
+
+	return nil
+}
+
+// AddContentAboveLine 匹配指定行，在它后面添加内容
+func AddContentUnderLine(filepath, matchLine, content string) error {
+	// 打开文件进行读取
+	file, err := os.Open(filepath)
+	if err != nil {
+		return fmt.Errorf("无法打开文件: %w", err)
+	}
+	defer file.Close()
+
+	// 创建一个新的内容容器
+	var newContent strings.Builder
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// 先将当前行添加到新的内容中
+		newContent.WriteString(line + "\n")
+
+		// 然后如果匹配到指定行，再插入一行内容
+		if strings.HasPrefix(line, matchLine) {
+			newContent.WriteString(content + "\n")
+		}
 	}
 
 	if err := scanner.Err(); err != nil {

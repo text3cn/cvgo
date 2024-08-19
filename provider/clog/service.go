@@ -38,11 +38,6 @@ type Service interface {
 	Errorf(output ...interface{})
 	Fatal(output ...interface{})
 	Fatalf(output ...interface{})
-
-	Color(color string, output interface{})
-	Colorf(color string, output ...interface{})
-
-	//P(output interface{})
 }
 
 // trace
@@ -133,13 +128,4 @@ func (self *ClogService) Fatalf(out ...interface{}) {
 		return
 	}
 	self.output(fatal, fmt.Sprintf(cast.ToString(out[0]), out[1:]...))
-}
-
-// color
-func (s *ClogService) Color(color string, output interface{}) {
-	clogSvc.P(color, output)
-}
-
-func (s *ClogService) Colorf(color string, out ...interface{}) {
-	clogSvc.P(color, fmt.Sprintf(cast.ToString(out[0]), out[1:]...))
 }

@@ -1,10 +1,9 @@
 package middleware
 
 import (
+	"cvgo/provider/config"
+	"cvgo/provider/httpserver"
 	"errors"
-	"github.com/text3cn/goodle/core"
-	"github.com/text3cn/goodle/providers/config"
-	"github.com/text3cn/goodle/providers/httpserver"
 	"log"
 	"net"
 	"os"
@@ -15,7 +14,7 @@ import (
 // recovery 机制，对协程中的函数异常进行捕获，这个应该作为最外层，即第一个被调用的中间件
 func Recovery(diyMsg map[string]interface{}) httpserver.MiddlewareHandler {
 	calback := func(c *httpserver.Context) error {
-		cfgSvc := c.Holder().NewSingle(core.Config).(config.Service)
+		cfgSvc := c.Holder().NewSingle(config.Name).(config.Service)
 		if cfgSvc.IsDebug() {
 			return nil
 		}

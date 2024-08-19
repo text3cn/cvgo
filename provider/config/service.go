@@ -32,9 +32,9 @@ type ConfigService struct {
 }
 
 type Service interface {
-	IsDebug() bool
 	LoadConfig(filename string) (*viper.Viper, error)
 	Get(key string) *castkit.GoodleVal
+	GetTokenSecret() string
 	GetHttpPort() string
 	GetRuntimePath() string
 	GetDatabase() (dbsCfg map[string]types.DBConfig)
@@ -44,6 +44,7 @@ type Service interface {
 	GetSwagger() types.SwaggerConfig
 	GetEtcd() types.EtcdConfig
 	GetFileServer() types.FileSeverConfig
+	IsDebug() bool
 }
 
 // 设置(篡改)当前工作路径，以便特殊路径在运行程序时按规则找配置文件。
@@ -151,20 +152,6 @@ func (self *ConfigService) Get(key string) *castkit.GoodleVal {
 	return &castkit.GoodleVal{cfg.Get(itemKey)}
 }
 
-func (self *ConfigService) IsDebug() bool {
-	key := "debug"
-	if cfg, _ := self.getAppConfig(); cfg != nil {
-		if cfg.IsSet(key) {
-			if val, ok := cfg.Get(key).(bool); !ok {
-				panic("The configuration of " + key + " is not a valid value")
-			} else {
-				return cast.ToBool(val)
-			}
-		}
-	}
-	return false
-}
-
 // http 服务监听段口
 func (self *ConfigService) GetHttpPort() (port string) {
 	key := "server.http-port"
@@ -255,4 +242,28 @@ func (self *ConfigService) GetFileServer() (config types.FileSeverConfig) {
 		mapstructure.Decode(value, &config)
 	}
 	return
+}
+
+func (self *ConfigService) IsDebug() bool {
+	key := "debug"
+	if cfg, _ := self.getAppConfig(); cfg != nil {
+		if cfg.IsSet(key) {
+			if val, ok := cfg.Get(key).(bool); !ok {
+				panic("The configuration of " + key + " is not a valid value")
+			} else {
+				return cast.ToBool(val)
+			}
+		}
+	}
+	return false
+}
+
+func (self *ConfigService) GetTokenSecret() string {
+	key := "tokenSecret"
+	if cfg, _ := self.getAppConfig(); cfg != nil {
+		if cfg.IsSet(key) {
+			return cfg.GetString(key)
+		}
+	}
+	return ""
 }

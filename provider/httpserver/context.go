@@ -3,8 +3,10 @@ package httpserver
 import (
 	"context"
 	"cvgo/kit/castkit"
+	"cvgo/provider/clog"
 	"cvgo/provider/config"
 	"cvgo/provider/core"
+	"cvgo/provider/i18n"
 	"net/http"
 	"sync"
 	"time"
@@ -36,7 +38,8 @@ type Context struct {
 	Req    IRequest
 	Resp   RespStruct
 	Config config.Service
-	//I18n   func(string) string
+	I18n   i18n.Service
+	Log    clog.Service
 }
 
 func NewContext(r *http.Request, w http.ResponseWriter, holder core.Container) *Context {
@@ -50,6 +53,8 @@ func NewContext(r *http.Request, w http.ResponseWriter, holder core.Container) *
 		Req:            req,
 		Resp:           RespStruct{request: req, responseWriter: w},
 		Config:         holder.NewSingle(config.Name).(config.Service),
+		I18n:           holder.NewSingle(i18n.Name).(i18n.Service),
+		Log:            holder.NewSingle(clog.Name).(clog.Service),
 	}
 	return ctx
 }
