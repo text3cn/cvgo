@@ -322,14 +322,15 @@ func Strtr(haystack string, params ...interface{}) string {
 }
 
 // 查找字符串在另一字符串中首次出现的位置（区分大小写）
-func Strpos(haystack, needle string, offsetArg ...int) int {
+// 在 str 中查找 find
+func Strpos(str, find string, offsetArg ...int) int {
 	var offset int
 	if len(offsetArg) == 0 {
 		offset = 0
 	} else {
 		offset = offsetArg[0]
 	}
-	length := len(haystack)
+	length := len(str)
 	if length == 0 || offset > length || -offset > length {
 		return -1
 	}
@@ -337,7 +338,7 @@ func Strpos(haystack, needle string, offsetArg ...int) int {
 	if offset < 0 {
 		offset += length
 	}
-	pos := strings.Index(haystack[offset:], needle)
+	pos := strings.Index(str[offset:], find)
 	if pos == -1 {
 		return -1
 	}
@@ -704,9 +705,10 @@ func StrRepeat(input string, multiplier int) string {
 	return strings.Repeat(input, multiplier)
 }
 
-// 去除 \n \r \t
-func RemoveFormat(input string) string {
-	result := strings.ReplaceAll(input, "\t", "")
+// 去除字符串中的所有空白字符串，包括空格 \n \r \t
+func RemoveSpace(input string) string {
+	result := strings.ReplaceAll(input, " ", "")
+	result = strings.ReplaceAll(result, "\t", "")
 	result = strings.ReplaceAll(result, "\n", "")
 	result = strings.ReplaceAll(result, "\r", "")
 	return result

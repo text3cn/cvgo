@@ -20,10 +20,12 @@ import (
 var pwd string
 var port string
 
-// 创建模块
+// 创建模块，在工程根目录执行：
+// go build -o $GOPATH/bin/cvg ./console && cvg create module fiber --webserver=fiber --force --swagger
 func createModule(modName, webserver string, swagger, force bool) {
 	var err error
 	pwd, err = os.Getwd()
+	saveProjectRootPath()
 	if err != nil {
 		log.Error("os.Getwd() 失败", err.Error())
 		return
@@ -321,4 +323,10 @@ func allocatePort() {
 	portInt, _ := kv.GetInt("allocatedPort")
 	port = cast.ToString(portInt + 1)
 	kv.Set("allocatedPort", portInt+1)
+}
+
+// 记录工程根目录路径
+func saveProjectRootPath() {
+	kv := console.NewKvStorage(pwd)
+	kv.SetProjectRootPath()
 }

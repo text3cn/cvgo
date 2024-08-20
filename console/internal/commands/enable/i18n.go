@@ -1,23 +1,17 @@
-package add
+package enable
 
 import (
 	"cvgo/console/internal/console"
-	"cvgo/console/internal/consolepath"
+	"cvgo/console/internal/paths"
 	"cvgo/kit/filekit"
-	"cvgo/provider"
 	"cvgo/provider/clog"
-	"cvgo/provider/config"
 	"path/filepath"
 )
-
-var httpPort string
-var routingFile string
 
 // 添加 i18n 支持
 func addI18n() {
 	routingFile = filepath.Join(pwd, "internal", "routing", "routing.go")
-	cfg := provider.Services.NewSingle(config.Name).(config.Service)
-	httpPort = cfg.GetHttpPort()
+	httpPort = console.GetHttpPort()
 	kv := console.NewKvStorage(filekit.GetParentDir(3))
 	webFrameworkKey := "port" + httpPort + "." + "webframework"
 	i18nStorageKey := "port" + httpPort + "." + "i18n"
@@ -28,8 +22,8 @@ func addI18n() {
 
 	// instance.go 中声明变量
 	instanceFile := filepath.Join(filekit.GetParentDir(2), "instance.go")
-	content := "\n" + `import "cvgo/provider/i18n"`
-	filekit.AddContentUnderLine(instanceFile, "package app", content)
+	content := `    "cvgo/provider/i18n"`
+	filekit.AddContentUnderLine(instanceFile, "import (", content)
 
 	content = "\n" + `var I18n i18n.Service`
 	err := filekit.FileAppendContent(instanceFile, content)
@@ -95,7 +89,7 @@ func useCvgoI18nMiddleware() {
 // fiber 框架添加 i18n 中间件
 func useFiberI18nMiddleware() {
 	// 拷贝自定义中间件模板
-	src := filepath.Join(consolepath.FiberTplForModule(), "middleware", "i18n.go")
+	src := filepath.Join(paths.FiberTplForModule(), "middleware", "i18n.go")
 	dest := filepath.Join(pwd, "internal", "middleware", "i18n.go")
 	filekit.CopyFile(src, dest)
 	// 在路由中启用中间件

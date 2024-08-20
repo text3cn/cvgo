@@ -3,6 +3,7 @@ package filekit
 import (
 	"bufio"
 	"cvgo/kit/strkit"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -170,7 +171,12 @@ func CreatePath(path string) error {
 }
 
 // CopyFile 将 src 文件复制到 dst，如果目录不在会自动创建
-func CopyFile(src, dst string) error {
+// 如果目标文件已存在默认会跳过，传递 override 后会覆盖
+func CopyFile(src, dst string, override ...bool) error {
+	force := false
+	if len(override) > 0 {
+		force = override[0]
+	}
 	// 打开源文件
 	sourceFile, err := os.Open(src)
 	if err != nil {
@@ -184,6 +190,12 @@ func CopyFile(src, dst string) error {
 	if err := EnsureDirExists(destDir); err != nil {
 		fmt.Println("EnsureDirExists Error:", err)
 		return err
+	}
+
+	// 检查目标文件是否已存
+	ext, err := PathExists(dst)
+	if ext && !force {
+		return errors.New("目标文件已经存在，跳过创建 " + dst)
 	}
 
 	// 创建目标文件
@@ -221,7 +233,7 @@ func CopyFile(src, dst string) error {
 }
 
 // CopyFiles 将 srcDir 目录下的所有文件复制到 destDir 目录下
-func CopyFiles(srcDir, dstDir string) error {
+func CopyFiles(srcDir, dstDir string, override ...bool) error {
 	// 检查目标目录是否存在，不存在则创建
 	if _, err := os.Stat(dstDir); os.IsNotExist(err) {
 		err = os.MkdirAll(dstDir, os.ModePerm)
@@ -258,10 +270,10 @@ func CopyFiles(srcDir, dstDir string) error {
 			}
 
 			// 复制文件
-			err = CopyFile(path, destPath)
+			err = CopyFile(path, destPath, override...)
 			if err != nil {
 				fmt.Printf("Failed to copy file: %+v\n", err)
-				return err
+				//	return err
 			}
 		}
 		return nil
@@ -362,6 +374,15 @@ func FilePutContents(filePath, content string) {
 	}
 }
 
+// 读取文件的内容
+func FileGetContents(filePath string) (string, error) {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
+}
+
 // AppendToFile 读取文件内容，追加新内容并写回文件
 func FileAppendContent(filepath string, contentToAppend string) error {
 	// 读取文件内容
@@ -379,8 +400,9 @@ func FileAppendContent(filepath string, contentToAppend string) error {
 	return nil
 }
 
-// AddContentAboveLine 匹配指定行，在它前面添加内容
+// AddContentAboveLine 匹配指定行（会对行去除空白字符再匹配），在它前面添加内容。只会匹配一次
 func AddContentAboveLine(filepath, matchLine, content string) error {
+	alreadyMatched := false
 	// 打开文件进行读取
 	file, err := os.Open(filepath)
 	if err != nil {
@@ -396,7 +418,7 @@ func AddContentAboveLine(filepath, matchLine, content string) error {
 		line := scanner.Text()
 
 		// 匹配指定行
-		if strings.HasPrefix(line, matchLine) {
+		if !alreadyMatched && (strings.HasPrefix(strkit.RemoveSpace(line), strkit.RemoveSpace(matchLine))) {
 			newContent.WriteString(content)
 		}
 
@@ -417,8 +439,9 @@ func AddContentAboveLine(filepath, matchLine, content string) error {
 	return nil
 }
 
-// AddContentAboveLine 匹配指定行，在它后面添加内容
+// AddContentAboveLine 匹配指定行内容（会对行去除空白字符再匹配），在它后面添加内容。只会匹配一次
 func AddContentUnderLine(filepath, matchLine, content string) error {
+	alreadyMatched := false
 	// 打开文件进行读取
 	file, err := os.Open(filepath)
 	if err != nil {
@@ -437,8 +460,9 @@ func AddContentUnderLine(filepath, matchLine, content string) error {
 		newContent.WriteString(line + "\n")
 
 		// 然后如果匹配到指定行，再插入一行内容
-		if strings.HasPrefix(line, matchLine) {
+		if !alreadyMatched && (strings.HasPrefix(strkit.RemoveSpace(line), strkit.RemoveSpace(matchLine))) {
 			newContent.WriteString(content + "\n")
+			alreadyMatched = true
 		}
 	}
 

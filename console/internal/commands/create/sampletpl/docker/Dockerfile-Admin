@@ -1,10 +1,10 @@
 FROM golang:1.22.4 as builder
 RUN mkdir -p /go/src
 WORKDIR /go/src
-COPY . .
+COPY docker .
 #RUN go work sync
 RUN cd /go/src/app/admin && GOFLAGS=-mod=readonly go mod tidy
-RUN cd /go/src/app/admin && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o tiger-admin .
+RUN cd /go/src/app/admin && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o cvgo-admin .
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates

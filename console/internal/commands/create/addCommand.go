@@ -12,8 +12,6 @@ var log = provider.Services.NewSingle(clog.Name).(clog.Service)
 
 //var cfg = provider.Services.NewSingle(config.Name).(config.Service)
 
-// 在工程根目录执行
-// go build -o $GOPATH/bin/cvg ./console && cvg create module fiber --webserver=fiber --force --swagger
 func AddCommand(command *types.Command) {
 	// 一级命令
 	lv1 := &cobra.Command{
@@ -54,5 +52,35 @@ func AddCommand(command *types.Command) {
 			}
 		},
 	})
+
+	// mysql entity
+	lv1.AddCommand(&cobra.Command{
+		Use:     "mysqlEntity",
+		Short:   "创建模型 entity",
+		Example: "cvg create mysqlEntity 表名称 表注释(可选)",
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 0 {
+				clog.CyanPrintln("命令不完整，查看帮助请执行 cvg create mysqlEntity -h")
+				return
+			}
+			tableName := args[0]
+			comment := ""
+			if len(args) > 1 {
+				comment = args[1]
+			}
+			createMysqlEntity(tableName, comment)
+		},
+	})
+
+	// docker
+	lv1.AddCommand(&cobra.Command{
+		Use:     "dockerEnv",
+		Short:   "添加一个 docker-compose 模板文件到 app",
+		Example: "cvg create dockerEnv",
+		Run: func(cmd *cobra.Command, args []string) {
+			createDockerEnv()
+		},
+	})
+
 	command.RootCmd.AddCommand(lv1)
 }

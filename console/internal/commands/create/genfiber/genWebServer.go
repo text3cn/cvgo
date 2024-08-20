@@ -1,7 +1,7 @@
 package genfiber
 
 import (
-	"cvgo/console/internal/consolepath"
+	"cvgo/console/internal/paths"
 	"cvgo/kit/filekit"
 	"cvgo/provider"
 	"path/filepath"
@@ -54,7 +54,7 @@ func Routes(app *fiber.App) {
 	}
 
 	// 鉴权中间件
-	src := filepath.Join(consolepath.FiberTplForRoot, "middleware", "auth.go")
+	src := filepath.Join(paths.FiberTplForRoot, "middleware", "auth.go")
 	dest := filepath.Join(moduleDir, "internal", "middleware", "auth.go")
 	filekit.DeleteFile(filepath.Join(moduleDir, "internal", "middleware", ".gitkeep"))
 	filekit.CopyFile(src, dest)
@@ -76,7 +76,7 @@ func Recover(fiberApp *fiber.App) {
 	// 创建 main.go
 	swagger := ""
 	if supportSwagger {
-		src = filepath.Join(consolepath.FiberTplForRoot, "boot", "swagger.go")
+		src = filepath.Join(paths.FiberTplForRoot, "boot", "swagger.go")
 		dest = filepath.Join(moduleDir, "internal", "boot", "swagger.go")
 		filekit.CopyFile(src, dest)
 		swagger = `

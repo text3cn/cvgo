@@ -10,12 +10,12 @@ import (
 )
 
 func (self *ClogService) output(level byte, v ...interface{}) error {
-	// calldepth 层次说明：本函数（第一层） -> service.go（第二层） -> level.go（第三层）-> 用户调用时（第四层）
+	// calldepth 层次说明：本函数（第一层） -> service.go（第二层） -> 用户调用时（第三层）
 	// 最后一个参数可以传 deep:number 来设置层数，例如：deep:5
-	length := len(v)
 	calldepth := 3
+	length := len(v)
 	last := cast.ToString(v[length-1])
-	if len(last) >= 3 && last[:3] == "deep" {
+	if strings.HasPrefix(last, "deep:") {
 		arr := strings.Split(last, ":")
 		calldepth, _ = strconv.Atoi(arr[1])
 		length--

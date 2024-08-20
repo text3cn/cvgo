@@ -28,6 +28,12 @@ func NewKvStorage(rootPath string) kvStorage {
 	return instance
 }
 
+func GetProjectRootPath() string {
+	kv := NewKvStorage("")
+	ret, _ := kv.GetString("projectRootPath")
+	return ret
+}
+
 // 保存配置到文件
 func (this kvStorage) saveData() error {
 	dataFile := filepath.Join(this.rootPath, "console", "runtime.json")
@@ -62,6 +68,10 @@ func (this kvStorage) Set(key string, value any) error {
 		return err
 	}
 	return nil
+}
+
+func (this kvStorage) SetProjectRootPath() {
+	this.Set("projectRootPath", this.rootPath)
 }
 
 func (this kvStorage) GetBool(key string) (bool, error) {
