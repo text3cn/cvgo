@@ -97,6 +97,36 @@ func CamelToSnake(s string) string {
 	return snake
 }
 
+// 下划线转大驼峰
+// SnakeToPascalCase 将 snake_case 转换为 PascalCase
+func SnakeToPascalCase(input string) string {
+	words := strings.Split(input, "_")
+	for i, word := range words {
+		if len(word) > 0 {
+			// 将第一个字母转换为大写，其他保持不变
+			words[i] = strings.ToUpper(string(word[0])) + word[1:]
+		}
+	}
+	return strings.Join(words, "")
+}
+
+// SnakeToCamelCase 将 snake_case 转换为 CamelCase
+func SnakeToCamelCase(input string) string {
+	words := strings.Split(input, "_")
+	for i, word := range words {
+		if len(word) > 0 {
+			if i == 0 {
+				// 第一个单词首字母小写
+				words[i] = strings.ToLower(string(word[0])) + word[1:]
+			} else {
+				// 其他单词首字母大写
+				words[i] = strings.ToUpper(string(word[0])) + word[1:]
+			}
+		}
+	}
+	return strings.Join(words, "")
+}
+
 // 生成唯一字符串，可以传入参数将唯一数值生成唯一字符串，比如手机号
 // 用固定数值数值传按固定规则混淆，生成唯一字符串
 func UniqueString(args ...string) string {

@@ -315,6 +315,10 @@ func (req *ReqStruct) JsonScan(s any) error {
 			fieldType := t.Field(i)
 			// 获取查询参数值
 			paramName := fieldType.Name // 使用字段名称
+			jsonTag := fieldType.Tag.Get("json")
+			if jsonTag != "" {
+				paramName = jsonTag
+			}
 			paramValue := queryParams.Get(paramName)
 			// 设置结构体字段值
 			setFieldValue(&field, paramValue)

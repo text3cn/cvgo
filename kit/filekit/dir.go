@@ -25,7 +25,7 @@ func EnsureDirExists(dir string) error {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		err := os.MkdirAll(dir, os.ModePerm)
 		if err != nil {
-			return fmt.Errorf("failed to create directory: %v", err)
+			return fmt.Errorf("failed to add directory: %v", err)
 		}
 	}
 	return nil

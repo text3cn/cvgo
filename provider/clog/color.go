@@ -15,6 +15,8 @@ const (
 	pink   = "\033[35m"
 	cyan   = "\033[36m"
 	gray   = "\033[37m"
+	orange = "\033[38;5;208m"
+	brown  = "\033[38;5;94m"
 
 	ColorBlack  = black
 	ColorRed    = red
@@ -24,6 +26,7 @@ const (
 	ColorPink   = pink
 	ColorCyan   = cyan
 	ColorGray   = gray
+	ColorOrange = orange
 
 	// 背景颜色
 	blackBG  = "\033[40m"
@@ -122,6 +125,28 @@ func YellowSprintf(str any, rest ...string) string {
 	return colorSprintf(yellow, str, rest...)
 }
 
+// 橙色
+func OrangePrintln(output ...any) {
+	colorPirntln(orange, output...)
+}
+func OrangePrintf(str string, v ...any) {
+	colorPrintf(orange, str, v...)
+}
+func OrangeSprintf(str any, rest ...string) string {
+	return colorSprintf(orange, str, rest...)
+}
+
+// 棕色
+func BrownPrintln(output ...any) {
+	colorPirntln(brown, output...)
+}
+func BrownPrintf(str string, v ...any) {
+	colorPrintf(brown, str, v...)
+}
+func BrownSprintf(str any, rest ...string) string {
+	return colorSprintf(brown, str, rest...)
+}
+
 func colorPirntln(color string, output ...any) {
 	//fmt.Println(yellow+" %v "+reset, str)
 	var str string
@@ -130,7 +155,9 @@ func colorPirntln(color string, output ...any) {
 			str = str + cast.ToString(v) + " "
 		}
 	}
+
 	fmt.Println(color + str + reset)
+
 }
 func colorPrintf(color string, str string, v ...any) {
 	fmt.Printf(color+str+reset, v...)

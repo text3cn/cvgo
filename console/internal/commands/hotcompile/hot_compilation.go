@@ -79,7 +79,7 @@ func HotCompilationRun() {
 func NewWatcher(paths []string, files []string) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Errorf(" Fail to create new Watcher[ %s ]\n", err)
+		log.Errorf(" Fail to add new Watcher[ %s ]\n", err)
 		os.Exit(2)
 	}
 

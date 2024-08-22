@@ -9,7 +9,7 @@ import (
 
 // 封装协程异常捕获，只管一层
 // e.g: go GoWithRecover(fn)
-// 带参数方式：go GoWithRecover(func() { test("param") )
+// 带参数方式：go GoWithRecover(func() { index("param") )
 func GoWithRecover(fn func()) {
 	defer func() {
 		if err := recover(); err != nil {

@@ -4,11 +4,10 @@ import (
 	"cvgo/console/internal/types"
 	"cvgo/kit/filekit"
 	"cvgo/provider/clog"
+	"fmt"
 	"github.com/spf13/cobra"
 )
 
-// 在模块目录中执行
-// cd ../../../ && go build -o $GOPATH/bin/cvg ./console && cd app/modules/chord && cvg add i18n
 func AddCommand(command *types.Command) {
 	pwd = filekit.Getwd()
 	// 一级命令
@@ -26,7 +25,7 @@ func AddCommand(command *types.Command) {
 	cmd.AddCommand(&cobra.Command{
 		Use:     "i18n",
 		Short:   "开启多语言支持",
-		Example: "cvg add i18n",
+		Example: "cvg enable i18n",
 		Run: func(cmd *cobra.Command, args []string) {
 			addI18n()
 		},
@@ -34,8 +33,9 @@ func AddCommand(command *types.Command) {
 	cmd.AddCommand(&cobra.Command{
 		Use:     "mysql",
 		Short:   "开启 mysql 支持",
-		Example: "cvg add mysql",
+		Example: "cvg enable mysql",
 		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println(3)
 			addGorm()
 		},
 	})

@@ -15,7 +15,7 @@ func ZipDirectory(srcDir, dstZipFile string) error {
 	// 创建目标 ZIP 文件
 	zipFile, err := os.Create(dstZipFile)
 	if err != nil {
-		return fmt.Errorf("failed to create zip file: %v", err)
+		return fmt.Errorf("failed to add zip file: %v", err)
 	}
 	defer zipFile.Close()
 

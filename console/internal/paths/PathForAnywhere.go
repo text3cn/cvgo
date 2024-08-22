@@ -1,7 +1,6 @@
 package paths
 
 import (
-	"cvgo/console/internal/console"
 	"path/filepath"
 )
 
@@ -13,7 +12,7 @@ type pathForAnywhere struct {
 
 func NewPathForAnywhere() *pathForAnywhere {
 	// 从 runtime.json 获取根路径
-	rootPath := console.GetProjectRootPath()
+	rootPath := GetProjectRootPathFromKv()
 	return &pathForAnywhere{
 		rootPath:     rootPath,
 		commandsPath: filepath.Join(rootPath, commandsDir),
@@ -21,12 +20,12 @@ func NewPathForAnywhere() *pathForAnywhere {
 }
 
 func (p *pathForAnywhere) DockerEnvTpl() string {
-	ret := filepath.Join(p.commandsPath, "create", "sampletpl", "docker-compose-env.yml")
+	ret := filepath.Join(p.commandsPath, "add", "tpl", "docker-compose-env.yml")
 	return ret
 }
 
 func (p *pathForAnywhere) DockerDirTpl() string {
-	ret := filepath.Join(p.commandsPath, "create", "sampletpl", "docker")
+	ret := filepath.Join(p.commandsPath, "add", "tpl", "docker")
 	return ret
 }
 

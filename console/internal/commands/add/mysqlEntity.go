@@ -1,28 +1,33 @@
-package create
+package add
 
 import (
 	"cvgo/console/internal/paths"
 	"cvgo/kit/filekit"
 	"cvgo/kit/strkit"
+	"os"
 	"path/filepath"
 	"strings"
 )
 
-// 创建 msyql entity，在工程根目录执行：
-// cd ../../../ && go build -o $GOPATH/bin/cvg ./console && cd app/modules/chord && cvg create mysqlEntity user 用户表
+// 创建 msyql entity，可在工程下任意路径执行
+// go build -o $GOPATH/bin/cvg ./console && cvg add table user_article
 func createMysqlEntity(tableName, comment string) {
-	path := paths.NewPathForApp()
-	if !paths.CheckRunAtModuleRoot() {
-		log.Error("请在模块根目录下执行此命令")
-		return
+	if !paths.CheckRunAtProjectRoot() {
+		err := os.Chdir(paths.GetProjectRootPathFromKv())
+		if err != nil {
+			panic(err)
+		}
+
 	}
+
+	path := paths.NewPathForProjectRoot()
 	entityFile := filepath.Join(path.AppEntityMysql(), tableName+".ent.go")
 	if exists, _ := filekit.PathExists(entityFile); exists {
 		log.Error(entityFile + " 已经存在，无法创建。")
 		return
 	}
 
-	entityName := strkit.Ucfirst(tableName) + "Entity"
+	entityName := strkit.SnakeToPascalCase(tableName) + "Entity"
 	content := `package mysql
 
 import "gorm.io/gorm"
@@ -45,13 +50,21 @@ func (this ` + entityName + `) SetTableComment(db *gorm.DB) {
 	filekit.FilePutContents(entityFile, content)
 
 	// 加入自动迁移，执行语句添加表注释
-	content = `
-	entities = append(entities, &mysql.` + entityName + `{})
-	mysql.` + entityName + `{}.SetTableComment(db)`
-
+	content = `    entities = append(entities, &mysql.` + entityName + `{})`
 	err := filekit.AddContentUnderLine(path.AppAutoMigrate(), "var entities = []interface{}{}", content)
 	if err != nil {
 		log.Error("无法在 "+path.AppAutoMigrate(), "中找到 var entities = []interface{}{} 这行代码，因此无法将添加自动迁移代码。")
+	}
+	content = `    mysql.` + entityName + `{}.SetTableComment(db)`
+	err = filekit.AddContentUnderLine(path.AppAutoMigrate(), "func addTableComment(db *gorm.DB) {", content)
+	if err != nil {
+		panic(err)
+	}
+	// 加入全局 EntityRegistry
+	content = `    EntityRegistry["` + tableName + `"] =  reflect.TypeOf(mysql.` + entityName + `{})`
+	err = filekit.AddContentUnderLine(path.AppAutoMigrate(), "func init() {", content)
+	if err != nil {
+		panic(err)
 	}
 
 	// 如果还没导包还需要导包

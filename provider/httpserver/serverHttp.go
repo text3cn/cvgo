@@ -83,7 +83,7 @@ func (self *Engine) UseMiddleware(handlers ...MiddlewareHandler) {
 }
 
 // 跨域
-func (self *Engine) UseCross() {
+func (self *Engine) Cross() {
 	self.cross = true
 }
 
@@ -93,13 +93,13 @@ func (self t3WebRoute) IsEmpty() bool {
 
 // 添加路由到 map
 // prefix 主要用于请求进来时匹配分组中间件
-func (self *Engine) AddRoute(methoad, prefix, uri string, routeType int8, handler RequestHandler, middlewares ...MiddlewareHandler) {
+func (self *Engine) AddRoute(method, prefix, uri string, routeType int8, handler RequestHandler, middlewares ...MiddlewareHandler) {
 	uri = strings.ToLower(uri)
-	if self.router[methoad][uri].routeType != 0 {
+	if self.router[method][uri].routeType != 0 {
 		err := errors.New("route exist: " + uri)
 		panic(err)
 	}
-	self.router[methoad][uri] = t3WebRoute{
+	self.router[method][prefix+"/"+uri] = t3WebRoute{
 		middlewares:    middlewares,
 		requestHandler: handler,
 		routeType:      routeType,
@@ -166,12 +166,12 @@ func (self *Engine) ServeHTTP(response http.ResponseWriter, request *http.Reques
 }
 
 // 匹配路由，如果没有匹配到，返回 nil
-func (this *Engine) FindRouteHandler(request *http.Request) t3WebRoute {
+func (self *Engine) FindRouteHandler(request *http.Request) t3WebRoute {
 	// 转换大小写，确保大小写不敏感
 	method := strings.ToUpper(request.Method)
 	uri := strings.ToLower(request.URL.Path)
 	// 查找第一层 map
-	if methodHandlers, ok := this.router[method]; ok {
+	if methodHandlers, ok := self.router[method]; ok {
 		if handler, ok := methodHandlers[uri]; ok {
 			return handler
 		}

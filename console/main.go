@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cvgo/console/internal/commands/create"
+	"cvgo/console/internal/commands/add"
 	"cvgo/console/internal/commands/crosscompile"
 	"cvgo/console/internal/commands/daemon"
 	"cvgo/console/internal/commands/enable"
@@ -36,7 +36,7 @@ func RunConsole() {
 	hotcompile.AddCommand(command)
 	daemon.AddCommand(command)
 	crosscompile.AddCommand(command)
-	create.AddCommand(command)
+	add.AddCommand(command)
 	enable.AddCommand(command)
 
 	// 命令行运行，执行 RootCommand

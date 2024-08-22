@@ -1,6 +1,7 @@
 package console
 
 import (
+	"cvgo/kit/gokit"
 	"cvgo/provider"
 	"errors"
 	"fmt"
@@ -20,23 +21,17 @@ func NewKvStorage(rootPath string) kvStorage {
 		viper:    viper.New(),
 		rootPath: rootPath,
 	}
-	dataFileDir := filepath.Join(rootPath, "console")
+	dataFileDir := filepath.Join(rootPath, "app")
 	instance.viper.AddConfigPath(dataFileDir)
-	instance.viper.SetConfigName("runtime") // 配置文件名称（不带扩展名）
-	instance.viper.SetConfigType("json")    // 配置文件类型
-	instance.viper.AddConfigPath(".")       // 配置文件路径
+	instance.viper.SetConfigName("cvg")  // 配置文件名称（不带扩展名）
+	instance.viper.SetConfigType("json") // 配置文件类型
+	instance.viper.AddConfigPath(".")    // 配置文件路径
 	return instance
-}
-
-func GetProjectRootPath() string {
-	kv := NewKvStorage("")
-	ret, _ := kv.GetString("projectRootPath")
-	return ret
 }
 
 // 保存配置到文件
 func (this kvStorage) saveData() error {
-	dataFile := filepath.Join(this.rootPath, "console", "runtime.json")
+	dataFile := filepath.Join(this.rootPath, "app", "cvg.json")
 
 	// 打开文件，如果不存在则创建
 	file, err := os.OpenFile(dataFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
@@ -88,7 +83,14 @@ func (this kvStorage) GetString(key string) (string, error) {
 	return this.viper.GetString(key), nil
 }
 
-func (this kvStorage) GetInt(key string) (int, error) {
+func (this kvStorage) GetStringSlice(key string) ([]string, error) {
+	if err := this.viper.ReadInConfig(); err != nil {
+		return nil, errors.New(fmt.Sprintf("读取配置文件时发生错误: %v\n", err))
+	}
+	return this.viper.GetStringSlice(key), nil
+}
+
+func (this kvStorage) GetAllocatedPort(key string) (int, error) {
 	if err := this.viper.ReadInConfig(); err != nil {
 		return DefaultHttpPort, errors.New(fmt.Sprintf("读取配置文件时发生错误: %v\n", err))
 	}
@@ -97,4 +99,18 @@ func (this kvStorage) GetInt(key string) (int, error) {
 		port = DefaultHttpPort
 	}
 	return port, nil
+}
+
+// 获取使用的 web 框架类型
+func (this kvStorage) GetWebFramework() (string, error) {
+	modName, _ := gokit.GetModuleName()
+	ret, _ := this.GetString(modName + ".webframework")
+	return ret, nil
+}
+
+// 获取是否支持 swagger
+func (this kvStorage) GetSwagger() (bool, error) {
+	modName, _ := gokit.GetModuleName()
+	ret, _ := this.GetBool(modName + ".swagger")
+	return ret, nil
 }

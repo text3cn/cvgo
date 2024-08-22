@@ -2,11 +2,10 @@ package middleware
 
 import (
 	"cvgo/app/common/dto"
-	"cvgo/errcode"
+	"cvgo/cvgerr"
 	"cvgo/kit/cryptokit"
 	"cvgo/kit/jsonkit"
 	"cvgo/provider"
-	"cvgo/provider/clog"
 	"cvgo/provider/config"
 	"cvgo/provider/httpserver"
 	"errors"
@@ -23,11 +22,11 @@ func Auth() httpserver.MiddlewareHandler {
 		if token != "" {
 			uid = cryptokit.DynamicDecrypt(secret, token)
 		}
-		clog.PinkPrintf("tokenKey=%s, token=%s, userId=%s \n", secret, token, uid)
+		//clog.PinkPrintf("tokenKey=%s, token=%s, userId=%s \n", secret, token, uid)
 		if token == "" || cast.ToInt64(uid) == 0 {
 			ret := dto.BaseRes{
-				ApiCode:    errcode.AuthorizationFailed,
-				ApiMessage: "Authorization failed.",
+				ApiCode:    cvgerr.AuthorizationFailed.Code,
+				ApiMessage: cvgerr.AuthorizationFailed.Message,
 			}
 			info := string(jsonkit.JsonEncode(ret))
 			return errors.New(info)

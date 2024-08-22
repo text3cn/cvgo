@@ -98,7 +98,7 @@ func forkSelf() {
 	child, err := ctx.Reborn()
 	defer ctx.Release()
 	if err != nil {
-		log.Error("Failed to create child process, " + err.Error())
+		log.Error("Failed to add child process, " + err.Error())
 		return
 	}
 	if child != nil {

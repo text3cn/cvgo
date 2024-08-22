@@ -29,7 +29,6 @@ func NewPrefix(core *Engine, prefix string) *Prefix {
 }
 
 func (p *Prefix) Get(uri string, handler RequestHandler, middlewares ...MiddlewareHandler) {
-	uri = strings.ToLower(p.prefix + uri)
 	p.httpCore.AddRoute("GET", p.prefix, uri, routeTypeGoGroup, handler, middlewares...)
 }
 

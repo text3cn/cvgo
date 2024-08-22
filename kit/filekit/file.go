@@ -141,10 +141,20 @@ func DeleteFile(filePath string) error {
 
 // CreatePath 创建文件或目录
 // 如果路径以 "/" 结尾，将被认为是目录；否则认为是文件。
-func CreatePath(path string) error {
+// overwite 如果目标已经存在，是否覆盖
+func CreatePath(path string, overwite ...bool) error {
 	// 判断路径是否是目录
 	isDir := filepath.Ext(path) == ""
-
+	force := false
+	if len(overwite) > 0 {
+		force = overwite[0]
+	}
+	if !force {
+		exists, err := PathExists(path)
+		if err != nil || exists {
+			return errors.New("创建失败，路径已存在：" + path)
+		}
+	}
 	if isDir {
 		// 创建目录
 		err := os.MkdirAll(path, os.ModePerm)
@@ -238,7 +248,7 @@ func CopyFiles(srcDir, dstDir string, override ...bool) error {
 	if _, err := os.Stat(dstDir); os.IsNotExist(err) {
 		err = os.MkdirAll(dstDir, os.ModePerm)
 		if err != nil {
-			return fmt.Errorf("failed to create destination directory: %v", err)
+			return fmt.Errorf("failed to add destination directory: %v", err)
 		}
 	}
 
@@ -264,7 +274,7 @@ func CopyFiles(srcDir, dstDir string, override ...bool) error {
 			if _, err := os.Stat(destDirPath); os.IsNotExist(err) {
 				err = os.MkdirAll(destDirPath, os.ModePerm)
 				if err != nil {
-					fmt.Printf("Failed to create destination directory: %+v\n", err)
+					fmt.Printf("Failed to add destination directory: %+v\n", err)
 					return err
 				}
 			}

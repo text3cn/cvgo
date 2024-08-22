@@ -1,4 +1,4 @@
-package create
+package add
 
 import (
 	"cvgo/console/internal/paths"
@@ -7,9 +7,9 @@ import (
 )
 
 // 添加用 docker-compse 用于启动开发环境
-// go build -o $GOPATH/bin/cvg ./console && cvg create dockerEnv
+// go build -o $GOPATH/bin/cvg ./console && cvg add dockerEnv
 func createDockerEnv() {
-	paths.NewPathForApp()
+	paths.NewPathForModule()
 	path := paths.NewPathForAnywhere()
 	err := filekit.CopyFile(path.DockerEnvTpl(), path.AppDockerEnv())
 	if err != nil {

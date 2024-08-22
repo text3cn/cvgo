@@ -1,0 +1,14 @@
+{
+  "allocatedport": 9010,
+  "chord": {
+    "mysql": true,
+    "port": "9005",
+    "routes": [
+      "api/user/info"
+    ],
+    "services": " append(oldSvcs, arg)",
+    "swagger": true,
+    "webframework": "cvgo"
+  },
+  "projectrootpath": "/Users/t3/t3/text3"
+}

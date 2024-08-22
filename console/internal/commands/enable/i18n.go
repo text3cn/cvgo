@@ -4,17 +4,24 @@ import (
 	"cvgo/console/internal/console"
 	"cvgo/console/internal/paths"
 	"cvgo/kit/filekit"
+	"cvgo/kit/gokit"
 	"cvgo/provider/clog"
 	"path/filepath"
 )
 
 // 添加 i18n 支持
 func addI18n() {
+	if !paths.CheckRunAtModuleRoot() {
+		return
+	}
+	modName, err := gokit.GetModuleName()
+	if err != nil {
+		panic(err)
+	}
 	routingFile = filepath.Join(pwd, "internal", "routing", "routing.go")
-	httpPort = console.GetHttpPort()
 	kv := console.NewKvStorage(filekit.GetParentDir(3))
-	webFrameworkKey := "port" + httpPort + "." + "webframework"
-	i18nStorageKey := "port" + httpPort + "." + "i18n"
+	webFrameworkKey := modName + "." + "webframework"
+	i18nStorageKey := modName + "." + "i18n"
 	if val, _ := kv.GetBool(i18nStorageKey); val {
 		log.Info("i18n 已经添加过了，无法重复执行。")
 		return
@@ -26,7 +33,7 @@ func addI18n() {
 	filekit.AddContentUnderLine(instanceFile, "import (", content)
 
 	content = "\n" + `var I18n i18n.Service`
-	err := filekit.FileAppendContent(instanceFile, content)
+	err = filekit.FileAppendContent(instanceFile, content)
 	if err != nil {
 		log.Error(err)
 	}

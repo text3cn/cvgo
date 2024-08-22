@@ -1,10 +1,10 @@
-package create
+package add
 
 import (
 	"bufio"
 	"bytes"
-	"cvgo/console/internal/commands/create/gencvgo"
-	"cvgo/console/internal/commands/create/genfiber"
+	"cvgo/console/internal/commands/add/gencvgo"
+	"cvgo/console/internal/commands/add/genfiber"
 	"cvgo/console/internal/console"
 	"cvgo/kit/filekit"
 	"cvgo/provider/clog"
@@ -21,7 +21,7 @@ var pwd string
 var port string
 
 // 创建模块，在工程根目录执行：
-// go build -o $GOPATH/bin/cvg ./console && cvg create module fiber --webserver=fiber --force --swagger
+// go build -o $GOPATH/bin/cvg ./console && cvg add module fiber --webserver=fiber --force --swagger
 func createModule(modName, webserver string, swagger, force bool) {
 	var err error
 	pwd, err = os.Getwd()
@@ -61,8 +61,10 @@ func createModule(modName, webserver string, swagger, force bool) {
 	// go.work 增加 module
 	appendModuleToGoWorkFile(modName)
 
-	console.NewKvStorage(pwd).Set("port"+port+".webFramework", webserver)
-
+	// 记录模块创建
+	console.NewKvStorage(pwd).Set(modName+".webFramework", webserver)
+	console.NewKvStorage(pwd).Set(modName+".port", port)
+	console.NewKvStorage(pwd).Set(modName+".swagger", swagger)
 	clog.GreenPrintln("创建模块", modName, "成功")
 }
 
@@ -104,11 +106,11 @@ func initModule(modName string, isFirstInit, force bool) error {
 	}
 	filekit.MkDir(dir)
 	createGoModFile(modName, filepath.Join(dir, "go.mod"))
-	src := filepath.Join(pwd, "console", "internal", "commands", "create", "sampletpl", "module")
+	src := filepath.Join(pwd, "console", "internal", "commands", "add", "tpl", "module")
 	filekit.CopyFiles(src, filepath.Join(dir)) // 拷贝 module 模板
 	// 拷贝 app 模板
 	if isFirstInit {
-		src = filepath.Join(pwd, "console", "internal", "commands", "create", "sampletpl", "app")
+		src = filepath.Join(pwd, "console", "internal", "commands", "add", "tpl", "app")
 		filekit.CopyFiles(src, filepath.Join(pwd, "app"))
 	}
 	return nil
@@ -320,7 +322,7 @@ func main() {
 // 分配端口
 func allocatePort() {
 	kv := console.NewKvStorage(pwd)
-	portInt, _ := kv.GetInt("allocatedPort")
+	portInt, _ := kv.GetAllocatedPort("allocatedPort")
 	port = cast.ToString(portInt + 1)
 	kv.Set("allocatedPort", portInt+1)
 }

@@ -46,7 +46,7 @@ func appendErrors(errors []string, err error) []string {
 
 type DecodeHookFunc func(reflect.Kind, reflect.Kind, interface{}) (interface{}, error)
 
-// DecoderConfig is the configuration that is used to create a new decoder
+// DecoderConfig is the configuration that is used to add a new decoder
 // and allows customization of various aspects of decoding.
 type DecoderConfig struct {
 	// DecodeHook, if set, will be called before any decoding and any
