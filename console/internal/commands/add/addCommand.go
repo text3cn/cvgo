@@ -159,6 +159,7 @@ func AddCommand(command *types.Command) {
 			}
 			webFramework, _ := console.NewKvStorage(filekit.GetParentDir(3)).GetWebFramework()
 			table, _ := cmd.Flags().GetString("table")
+			cursorPaging, _ := cmd.Flags().GetBool("cursor")
 			curdType := ""
 			switch webFramework {
 			case "cvgo":
@@ -179,17 +180,19 @@ func AddCommand(command *types.Command) {
 						case "l":
 							funcName = "List" + pathArr[1]
 						}
-						gencvgo.GenService(pathArr[0], funcName, u, table)
+						gencvgo.GenService(pathArr[0], funcName, u, table, cursorPaging)
 					}
 				} else {
-					gencvgo.GenService(pathArr[0], pathArr[1], curdType, table)
+					gencvgo.GenService(pathArr[0], pathArr[1], curdType, table, cursorPaging)
 				}
 
 			}
 		},
 	}
 	var table string
+	var cursorPaging bool
 	svc.Flags().StringVar(&table, "table", "", "使用指定表名称创建 CURD 代码")
+	svc.Flags().BoolVar(&cursorPaging, "cursor", false, "列表是否使用游标分页")
 	lv1.AddCommand(svc)
 
 	command.RootCmd.AddCommand(lv1)

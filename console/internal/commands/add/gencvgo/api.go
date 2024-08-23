@@ -1,7 +1,7 @@
 package gencvgo
 
 import (
-	"cvgo/console/internal/commands/add/addcommon"
+	"cvgo/console/internal/commands/add/addgencode"
 	"cvgo/console/internal/console"
 	"cvgo/console/internal/paths"
 	"cvgo/kit/arrkit"
@@ -91,7 +91,7 @@ type ` + funcName + `Res struct {
 
 	// 生 apidebug
 	apiDebugHtmlFile := filepath.Join(path.ModuleApiDebugDir(), pathArr[1], pathArr[2]+".html")
-	addcommon.GenApidebug(apiDebugHtmlFile, requestPath, method)
+	addgencode.GenApidebug(apiDebugHtmlFile, requestPath, method)
 
 	// 完成
 	kv.Set(modName+".routes", append(oldRoutes, requestPath))

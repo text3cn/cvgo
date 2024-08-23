@@ -57,6 +57,7 @@ func (self *OrmService) init() {
 		// 设置对应的连接池配置，确保 ins 健康
 		sqlDB, err = db.DB()
 		if err != nil {
+			self.plog.Error("database conn error")
 			break
 		}
 		connMaxIdle := 10

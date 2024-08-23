@@ -1,4 +1,4 @@
-package addcommon
+package addgencode
 
 import (
 	"cvgo/kit/filekit"

@@ -1,12 +1,12 @@
 package add
 
 import (
+	"cvgo/console/internal/commands/add/addgencode"
 	"cvgo/console/internal/paths"
 	"cvgo/kit/filekit"
 	"cvgo/kit/strkit"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 // 创建 msyql entity，可在工程下任意路径执行
@@ -68,10 +68,5 @@ func (this ` + entityName + `) SetTableComment(db *gorm.DB) {
 	}
 
 	// 如果还没导包还需要导包
-	autoMigrateContent, _ := filekit.FileGetContents(path.AppAutoMigrate())
-	if !strings.Contains(autoMigrateContent, "cvgo/app/entity/mysql") {
-		content = `    "cvgo/app/entity/mysql"`
-		filekit.AddContentUnderLine(path.AppAutoMigrate(), "import (", content)
-	}
-
+	addgencode.ImportPackageIfNotImport(path.AppAutoMigrate(), "cvgo/app/entity/mysql")
 }
