@@ -2,18 +2,18 @@ package main
 
 import (
 	"cvgo/commands/add"
+	"cvgo/commands/create"
 	"cvgo/commands/crosscompile"
-	"cvgo/commands/daemon"
 	"cvgo/commands/enable"
 	"cvgo/commands/hotcompile"
-	"cvgo/console"
+	"cvgo/config"
 	"cvgo/types"
 	"github.com/spf13/cobra" // https://github.com/spf13/cobra
 )
 
 // go build -o $GOPATH/bin/cvg
 func main() {
-	console.LoadConfig()
+	config.LoadConfig()
 	RunConsole()
 }
 
@@ -33,11 +33,12 @@ func RunConsole() {
 		RootCmd: cobraRoot,
 	}
 	// 绑定指令
+	create.AddCommand(command)
+	enable.AddCommand(command)
 	hotcompile.AddCommand(command)
-	daemon.AddCommand(command)
+	//daemon.AddCommand(command)
 	crosscompile.AddCommand(command)
 	add.AddCommand(command)
-	enable.AddCommand(command)
 
 	// 命令行运行，执行 RootCommand
 	command.RootCmd.Execute()

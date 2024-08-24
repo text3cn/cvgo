@@ -1,0 +1,46 @@
+# RUN：docker compose -f docker-compose-env.yml up -d
+
+services:
+  # mysql
+  mysql:
+    image: mysql:8.3
+    container_name: mysql83
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: Msq123^&okK
+      MYSQL_DATABASE: cvgo
+
+  # 内存缓存，关闭持久化
+  redis-cache:
+    image: redis:7
+    ports:
+      - "6378:6379"
+    container_name: redis-cache
+    volumes:
+      - ./docker/redis-cache.conf:/usr/local/etc/redis/redis.conf
+      - redis_cache_data:/data/redis
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+
+  # KV 数据库
+  redis-kvs:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    container_name: redis-kvs
+    volumes:
+      - ./docker/redis-kvs.conf:/usr/local/etc/redis/redis.conf
+      - redis_kvs_data:/data/redis
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+
+
+
+# 数据卷：docker volume ls
+# 每个工程的数据卷默认会带上工程所在目录名称为前缀。
+volumes:
+  mysql_data:
+  redis_kvs_data:
+  redis_cache_data:
+

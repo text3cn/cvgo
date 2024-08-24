@@ -1,8 +1,7 @@
 package enable
 
 import (
-	"cvgo/console/internal/types"
-	"fmt"
+	"cvgo/types"
 	"github.com/spf13/cobra"
 	"github.com/textthree/cvgokit/filekit"
 	"github.com/textthree/provider/clog"
@@ -10,13 +9,14 @@ import (
 
 func AddCommand(command *types.Command) {
 	pwd = filekit.Getwd()
+
 	// 一级命令
 	cmd := &cobra.Command{
 		Use:   "enable",
 		Short: "开启相关功能支持",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
-				clog.CyanPrintln("命令不完整，请执行 cvg add --help 查看帮助")
+				clog.CyanPrintln("命令不完整，请执行 cvg enable --h 查看帮助")
 			}
 		},
 	}
@@ -35,8 +35,7 @@ func AddCommand(command *types.Command) {
 		Short:   "开启 mysql 支持",
 		Example: "cvg enable mysql",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println(3)
-			addGorm()
+			addMysql()
 		},
 	})
 

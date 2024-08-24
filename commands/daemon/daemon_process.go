@@ -1,8 +1,8 @@
 package daemon
 
 import (
-	"cvgo/console"
-	"cvgo/console/internal/types"
+	"cvgo/config"
+	"cvgo/config/internal/types"
 	"github.com/sevlyar/go-daemon"
 	"github.com/silenceper/log"
 	"github.com/spf13/cobra"
@@ -98,7 +98,7 @@ func forkSelf() {
 	child, err := ctx.Reborn()
 	defer ctx.Release()
 	if err != nil {
-		log.Error("Failed to add child process, " + err.Error())
+		log.Error("Failed to codegen child process, " + err.Error())
 		return
 	}
 	if child != nil {

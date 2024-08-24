@@ -1,8 +1,8 @@
 package crosscompile
 
 import (
-	"cvgo/console"
-	"cvgo/console/internal/types"
+	"cvgo/config"
+	"cvgo/types"
 	"github.com/silenceper/log"
 	"github.com/spf13/cobra"
 	"github.com/textthree/cvgokit/filekit"
@@ -28,8 +28,8 @@ func AddCommand(command *types.Command) {
 				}
 
 				// 创建目录
-				if console.CrossCompileCfg.OutputDir != "./" {
-					filekit.MkDir(console.CrossCompileCfg.OutputDir, 0777)
+				if config.CrossCompileCfg.OutputDir != "./" {
+					filekit.MkDir(config.CrossCompileCfg.OutputDir, 0777)
 				}
 				var err error
 				moduleName, err = gokit.GetModuleName()
@@ -40,7 +40,7 @@ func AddCommand(command *types.Command) {
 					log.Errorf("Get module name fail: %s\n", err)
 				}
 
-				buildFileFullPath = filepath.Join(console.CrossCompileCfg.OutputDir, moduleName, moduleName)
+				buildFileFullPath = filepath.Join(config.CrossCompileCfg.OutputDir, moduleName, moduleName)
 
 				// 构建
 				pkg := ""
@@ -95,13 +95,13 @@ func build(goods, goarch, pkg string) {
 // viper 提供了 viper.WriteConfigAs("new_config.yaml") 将内存中的配置再存为文件。
 func copyConfig() {
 	// 公共配置
-	src := filepath.Join(console.RootPath, "app", "config")
-	tirgetDir := filepath.Join(console.CrossCompileCfg.OutputDir, moduleName)
+	src := filepath.Join(config.RootPath, "app", "config")
+	tirgetDir := filepath.Join(config.CrossCompileCfg.OutputDir, moduleName)
 	filekit.CopyFiles(src, tirgetDir)
 	filekit.Rename(filepath.Join(tirgetDir, "alpha"), filepath.Join(tirgetDir, "config"))
 	// 模块配置
-	internalAppYaml := filepath.Join(console.RootPath, "app", "modules", moduleName, "internal", "config", "app.yaml")
-	distAppYaml := filepath.Join(console.CrossCompileCfg.OutputDir, moduleName, "config", "local", "app.yaml")
+	internalAppYaml := filepath.Join(config.RootPath, "app", "modules", moduleName, "internal", "config", "app.yaml")
+	distAppYaml := filepath.Join(config.CrossCompileCfg.OutputDir, moduleName, "config", "local", "app.yaml")
 	filekit.CopyFile(internalAppYaml, distAppYaml)
 	// 将 config 用 internal 目录包装
 	filekit.MoveDir(filepath.Join(tirgetDir, "config"), filepath.Join(tirgetDir, "internal"))

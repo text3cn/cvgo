@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="cvg" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="cvgo" />
+    <working_directory value="$PROJECT_DIR$" />
+    <kind value="PACKAGE" />
+    <package value="cvgo" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$" />
+    <output_directory value="$USER_HOME$/go/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+</component>

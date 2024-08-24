@@ -26,3 +26,6 @@ echo 'export PATH="$(go env GOPATH)/bin:$PATH"' >> ~/.bash_profile
 source ~/.bash_profile
 ```
 然后就可以使用 cvg 命令来搭建项目了。
+
+## 详细文档
+http://cvgo.text3.cn
