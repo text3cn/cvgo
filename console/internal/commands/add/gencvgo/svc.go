@@ -25,7 +25,7 @@ func GenService(fileName, funcName string, curdType string, tableName string, cu
 	oldSvcs, _ := kv.GetStringSlice(kvKey)
 	if arrkit.InArray(fileAndFunc, oldSvcs) {
 		clog.RedPrintln("Service", fileAndFunc, "已存在")
-		//return
+		return
 	}
 
 	// 创建 service
