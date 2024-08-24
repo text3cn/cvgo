@@ -1,6 +1,6 @@
 .idea
 dist
-console/cvg.yaml
+cvg.yaml
 go.work
 console/runtime.json
 /app
