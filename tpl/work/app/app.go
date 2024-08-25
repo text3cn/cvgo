@@ -7,7 +7,7 @@ import "os"
 // 文件末尾加入：export ENV=production
 // 生效：source ~/.bashrc
 func IsDevelop() bool {
-	return os.Getenv("ENV") == "development"
+	return os.Getenv("ENV") != "production"
 }
 
 func Env() string {

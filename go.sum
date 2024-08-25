@@ -148,6 +148,7 @@ github.com/textthree/cvgokit v1.0.1 h1:I1nzhXZSbezP5UihKqNGqo2VMYxjfuIhAZfeWnppP
 github.com/textthree/cvgokit v1.0.1/go.mod h1:FSypp58Yxu4wjane9zftNTB3ro0uFa/QyRS6L7Dquv4=
 github.com/textthree/provider v0.0.0-20240824065710-342f34bf0628 h1:7t2l8fgIsElIfa1Hh8Zd5vk/z+9D8uvQaWd3CU7tzEM=
 github.com/textthree/provider v0.0.0-20240824065710-342f34bf0628/go.mod h1:PXwmXwey8pXnehF1B1ducepJY1RHvutvJiTxes3BZDw=
+github.com/textthree/provider v1.0.2 h1:foht7TD0LqbsZ5dnJKtw4E9CSDVz1H2+Q/nxF4rjzSY=
 github.com/textthree/provider v1.0.2/go.mod h1:PXwmXwey8pXnehF1B1ducepJY1RHvutvJiTxes3BZDw=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=

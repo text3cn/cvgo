@@ -57,7 +57,7 @@ func Routes(engine *httpserver.Engine) {
 	filekit.FilePutContents(path.RoutingGo(), content)
 	filekit.DeleteFile(path.RoutingGitkeep())
 
-	genAuthMiddware(path.AuthMiddlewareGo(), workspaceName)
+	genAuthMiddware(path.AuthMiddlewareGo(), modName)
 
 	// 创建 main.go
 	mainGoFilePath := filepath.Join(moduleDir, "main.go")
@@ -88,7 +88,7 @@ tokenSecret: ` + tokenSecret + `
 	createGoModFile(moduleDir, modName)
 }
 
-func genAuthMiddware(filepath, workspaceName string) {
+func genAuthMiddware(filepath, moduleName string) {
 	content := `package middleware
 
 import (
@@ -99,7 +99,7 @@ import (
 	"github.com/textthree/cvgoweb"
 	"github.com/textthree/provider"
 	"github.com/textthree/provider/config"
-	"` + workspaceName + `/common/dto"
+	"` + moduleName + `/internal/dto"
 )
 
 func Auth() httpserver.MiddlewareHandler {
@@ -208,7 +208,6 @@ import (
 func init() {
 	app.Config = provider.Services.NewSingle(config.Name).(config.Service)
 	app.Log = provider.Services.NewSingle(clog.Name).(clog.Service)
-	clog.CyanPrintln("  Current Path: " + filekit.Getwd())
 }`
 	filekit.FilePutContents(bootInitFile, content)
 	filekit.DeleteFile(gitkeepFile)

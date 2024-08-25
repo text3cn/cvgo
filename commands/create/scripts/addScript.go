@@ -47,9 +47,9 @@ func main() {
 // 迁移表结构
 func mysqlMigrate(moduleName string) {
 	currentDir, _ := os.Getwd()
-	cfg := provider.Services.NewSingle(config.Name).(config.Service)
-	cfg.SetCurrentPath(filepath.Join(currentDir, "app", "modules", moduleName) + string(os.PathSeparator))
-	database := provider.Services.NewSingle(orm.Name).(orm.Service)
+	cfg := provider.Svc().NewSingle(config.Name).(config.Service)
+	cfg.SetCurrentPath(filepath.Join(currentDir, "app", moduleName) + string(os.PathSeparator))
+	database := provider.Svc().NewSingle(orm.Name).(orm.Service)
 	conn := database.GetConnPool()
 	entity.AutoMigrate(conn)
 }
@@ -58,21 +58,15 @@ func mysqlMigrate(moduleName string) {
 func docGenerate(app string) {
 	currentDir, err := os.Getwd()
 	sep := string(os.PathSeparator)
-	os.Chdir(currentDir + sep + "app" + sep + "modules" + sep + app)
-	cmd := exec.Command("swag", "init", "--parseDependency", "--propertyStrategy", "pascalcase")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err = cmd.Run()
+	os.Chdir(currentDir + sep + "app" + sep + app)
+	_, err = syskit.ExecWithOutput("swag", "init", "--parseDependency", "--propertyStrategy", "pascalcase")
 	if err != nil {
 		pwd, _ := os.Getwd()
-		log.Error("生成 Swagger 文档出错。请在 " + pwd + " 目录下手动执行 swag init --parseDependency 命令查看错误信息。")
+		log.Error("生成 Swagger 文档出错。请在 "+pwd+" 目录下手动执行 swag init --parseDependency 命令查看错误信息。", err)
 		return
 	}
-	fmt.Println(out.String())
 	os.Chdir(currentDir)
 }
-
-
 `
 	err := filekit.FilePutContents(workPath.MigrateSwaggerScript(), content)
 	if err != nil {

@@ -66,7 +66,7 @@ func ` + funcName + ` (ctx *httpserver.Context) {
 		content = `package dto
 	
 import (
-	"` + workspaceName + `/common/dto"
+	"` + workspaceName + `/common"
 )
 `
 		content += "/*\n\ttype Example struct {\n\t    Field  int   `json:\"field\"  swaggertype:\"integer\" validate:\"required\" description:\"描述\" example:\"示例\"`\n\t    Field2 []int `json:\"field2\" swaggertype:\"array,number\"` // 字段注释\n\t}\n*/\n"
@@ -76,7 +76,7 @@ import (
 type ` + funcName + `Req struct {}
 	
 type ` + funcName + `Res struct {
-	dto.BaseRes
+	common.BaseRes
 }
 `
 	filekit.FileAppendContent(dtoFile, content)
@@ -124,7 +124,7 @@ func addSwagger(supportSwagger bool, funcName, requestPath, method string) strin
 		content := `
 // @Summary    ` + funcName + `
 // @Tags        ` + pathArr[1] + `
-// @Router      ` + requestPath + ` [` + method + `]
+// @Router      /` + requestPath + ` [` + method + `]
 // @Accept      json
 // @Produce     json
 // @Param       request body dto.` + funcName + `Req true " "
