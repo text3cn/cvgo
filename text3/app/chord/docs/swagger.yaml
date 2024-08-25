@@ -1,9 +1,0 @@
-basePath: /
-host: localhost:9003
-info:
-  contact: {}
-  description: 使用 [swaggo](https://github.com/swaggo/swag/blob/master/README_zh-CN.md)
-    编写。
-  title: chord API Doc
-paths: {}
-swagger: "2.0"

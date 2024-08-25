@@ -1,7 +1,0 @@
-server:
-  http-port: 9003  
-
-swagger:
-  filepath: ./docs/swagger.json
-
-tokenSecret: JQ271RXlO5sSxAtu
