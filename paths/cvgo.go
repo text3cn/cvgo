@@ -49,3 +49,7 @@ func (p *CvgoPath) DockerComposeEnv() string {
 func (p *CvgoPath) DockerDir() string {
 	return "docker/docker"
 }
+
+func (p *CvgoPath) GitlabCI() string {
+	return ".gitlab-ci.yml"
+}

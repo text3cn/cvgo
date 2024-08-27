@@ -2,6 +2,7 @@ package create
 
 import (
 	"cvgo/commands/create/docker"
+	"cvgo/commands/create/gitlabci"
 	"cvgo/commands/create/module"
 	"cvgo/commands/create/scripts"
 	"cvgo/commands/create/table"
@@ -95,7 +96,7 @@ func AddCommand(command *types.Command) {
 		Use:     "create-docker",
 		Aliases: []string{"cd"},
 		Short:   "添加一个 docker-compose 模板到 app",
-		Example: "cvg codegen dockerEnv",
+		Example: "cvg create-docker",
 		Run: func(cmd *cobra.Command, args []string) {
 			docker.CreateDocker()
 		},
@@ -116,5 +117,16 @@ func AddCommand(command *types.Command) {
 		},
 	}
 	command.RootCmd.AddCommand(script)
+
+	// gitlab-ci.yml
+	gitlabCI := &cobra.Command{
+		Use:     "create-gitlab-ci",
+		Short:   "添加一个 gitlab-ci.yml 到工作区",
+		Example: "cvg create-gitlab-ci",
+		Run: func(cmd *cobra.Command, args []string) {
+			gitlabci.CreateGitlabCiYml()
+		},
+	}
+	command.RootCmd.AddCommand(gitlabCI)
 
 }

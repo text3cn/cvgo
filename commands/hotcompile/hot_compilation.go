@@ -8,7 +8,6 @@ import (
 	"github.com/mitchellh/go-ps"
 	"github.com/silenceper/log"
 	"github.com/spf13/cobra"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	path "path/filepath"
@@ -58,6 +57,7 @@ func AddCommand(command *types.Command) {
 
 func HotCompilationRun() {
 	var paths []string
+
 	ReadAppDirectories(config.RootPath, &paths)
 	for _, path := range config.HotCompileCfg.WatchPaths {
 		ReadAppDirectories(path, &paths)
@@ -389,7 +389,7 @@ func checkIfWatchExt(name string) bool {
 }
 
 func ReadAppDirectories(directory string, paths *[]string) {
-	fileInfos, err := ioutil.ReadDir(directory)
+	fileInfos, err := os.ReadDir(directory)
 	if err != nil {
 		return
 	}

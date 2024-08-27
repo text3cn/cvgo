@@ -12,13 +12,13 @@ type ApiError struct {
 	Message string
 }
 
-func NewApiError(code int, message string) *ApiError {
+func NewApiError(code int, message string) ApiError {
 	if _, ok := AllErrors[code]; ok {
 		msg := fmt.Sprintf("Duplicated error code=%d", code)
 		panic(msg)
 	}
 	AllErrors[code] = message
-	return &ApiError{code, message}
+	return ApiError{code, message}
 }
 
 // 请求参数解析错误

@@ -24,7 +24,7 @@ var (
 func LoadConfig() {
 	HotCompileCfg = &types.HotCompileConfig{}
 	CrossCompileCfg = &types.CrossCompileCfg{}
-	RootPath = filekit.GetParentDir(3) + string(os.PathSeparator)
+	RootPath = filekit.Getwd()
 
 	// 默认配置
 	setHotCompileDefaultConfig()

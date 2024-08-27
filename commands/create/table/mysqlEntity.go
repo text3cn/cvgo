@@ -66,4 +66,5 @@ func (this ` + entityName + `) SetTableComment(db *gorm.DB) {
 	common.ImportPackageIfNotImport(workPath.AppAutoMigrate(), workspace+"/entity/mysql")
 	common.ImportPackageIfNotImport(workPath.EntityRegistry(), workspace+"/entity/mysql")
 
+	clog.GreenPrintln("创建表成功")
 }

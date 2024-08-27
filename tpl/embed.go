@@ -41,6 +41,9 @@ var DockerComposeEnv embed.FS
 //go:embed docker/docker/*
 var DockerDir embed.FS
 
+//go:embed .gitlab-ci.yml
+var GitlabCI embed.FS
+
 func CopyDirFromEmbedFs(embedFS embed.FS, src string, dest string) error {
 	return fs.WalkDir(embedFS, src, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {

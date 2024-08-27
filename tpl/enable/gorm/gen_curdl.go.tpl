@@ -10,7 +10,23 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello World")
+	curdType := os.Args[1]
+    tableName := os.Args[2]
+    funcName := os.Args[3]
+    fileNamePascalCase := os.Args[4]
+    cursorPaging := cast.ToBool(os.Args[5])
+    switch curdType {
+    case "c":
+        fmt.Println(CurdCreate(tableName, funcName, fileNamePascalCase))
+    case "u":
+        fmt.Printf(CurdUpdate(tableName, funcName, fileNamePascalCase))
+    case "r":
+        fmt.Printf(CurdGet(tableName, funcName, fileNamePascalCase))
+    case "d":
+        fmt.Printf(CurdDelete(tableName, funcName, fileNamePascalCase))
+    case "l":
+        fmt.Printf(CurdList(tableName, funcName, fileNamePascalCase, cursorPaging))
+    }
 }
 
 // Create 基础代码
@@ -26,9 +42,9 @@ func CurdCreate(tableName, funcName, fileNamePascalCase string) string {
 	structName := strkit.SnakeToPascalCase(tableName) + "Entity"
 	content := `
 // ` + funcName + `
-func (self *` + fileNamePascalCase + `Service) ` + funcName + `() {
+func (self *` + fileNamePascalCase + `Service) ` + funcName + `() error {
 `
-	content += fmt.Sprintf("    result := %s.Db.Create(&%s.%s{\n", "app", packageName, structName)
+	content += fmt.Sprintf("    err := %s.Db.Create(&%s.%s{\n", "app", packageName, structName)
 	for i := 0; i < entityType.NumField(); i++ {
 		field := entityType.Field(i)
 		value := entityValue.Field(i)
@@ -64,11 +80,13 @@ func (self *` + fileNamePascalCase + `Service) ` + funcName + `() {
 		content += fmt.Sprintf("\t\t%s: %s,\n", field.Name, fieldValue)
 	}
 
-	content += "    })"
+	content += "    }).Error"
 	content += `
-	if result.Error != nil {
-		app.Log.Error(result.Error.Error())
+	if err != nil {
+		app.Log.Error(err.Error())
+		return errors.New(cvgerr.SQL_ERR.Message)
 	}
+	return nil
 }`
 
 	return content
@@ -79,14 +97,18 @@ func CurdUpdate(tableName, funcName, fileNamePascalCase string) string {
 	structName := strkit.SnakeToPascalCase(tableName) + "Entity"
 	content := `
 // ` + funcName + `
-func (self *` + fileNamePascalCase + `Service) ` + funcName + `() {
+func (self *` + fileNamePascalCase + `Service) ` + funcName + `() error {
 `
-	content += `    result := app.Db.Model(&mysql.` + structName + `{}).
+	content += `    err := app.Db.Model(&mysql.` + structName + `{}).
 		Where("id = ?", 0).
-		Updates(mysql.` + structName + `{})
-	if result.Error != nil {
-		app.Log.Error(result.Error.Error())
+		Updates(mysql.` + structName + `{
+		    // fields
+		}).Error
+	if err != nil {
+		app.Log.Error(err.Error())
+		return errors.New(err.Error())
 	}
+	return nil
 }`
 	return content
 }
@@ -96,12 +118,14 @@ func CurdDelete(tableName, funcName, fileNamePascalCase string) string {
 	structName := strkit.SnakeToPascalCase(tableName) + "Entity"
 	content := `
 // ` + funcName + `
-func (self *` + fileNamePascalCase + `Service) ` + funcName + `() {
+func (self *` + fileNamePascalCase + `Service) ` + funcName + `() error {
 `
-	content += `    result := app.Db.Where("id = ?", 0).Delete(&mysql.` + structName + `{}, 0)
-	if result.Error != nil {
-		app.Log.Error(result.Error.Error())
+	content += `    err := app.Db.Where("id = ?", 0).Delete(&mysql.` + structName + `{}).Error
+	if err != nil {
+		app.Log.Error(err.Error())
+		return errors.New(err.Error())
 	}
+	return nil
 }`
 	return content
 }
@@ -111,11 +135,11 @@ func CurdGet(tableName, funcName, fileNamePascalCase string) string {
 	structName := strkit.SnakeToPascalCase(tableName) + "Entity"
 	content := `
 // ` + funcName + `
-func (self *` + fileNamePascalCase + `Service) ` + funcName + `() (rows mysql.` + structName + `) {
+func (self *` + fileNamePascalCase + `Service) ` + funcName + `() (rows mysql.` + structName + `, err error) {
 `
-	content += `    result := app.Db.Where("id = ?", 0).Take(&rows)
-	if result.Error != nil {
-		app.Log.Error(result.Error.Error())
+	content += `    err = app.Db.Where("id = ?", 0).Take(&rows).Error
+	if err != nil {
+		app.Log.Error(err.Error())
 	}
 	return
 }`
@@ -129,7 +153,7 @@ func CurdList(tableName string, funcName, fileNamePascalCase string, cursorPagin
 		// 游标分页
 		content = `
 // ` + funcName + `
-func (self *` + fileNamePascalCase + `Service) ` + funcName + `(cursor int64, rows ...int) (list []mysql.` + entityStruct + `, total int64) {
+func (self *` + fileNamePascalCase + `Service) ` + funcName + `(cursor int64, rows ...int) (list []mysql.` + entityStruct + `) {
 `
 		content += `    limitRows := 20
 	if len(rows) > 0 && rows[0] < 50 {
@@ -163,7 +187,7 @@ func (self *` + fileNamePascalCase + `Service) ` + funcName + `(cursor int64, ro
 		// 传统分页
 		content = `
 // ` + funcName + `
-func (self *` + fileNamePascalCase + `Service) ` + funcName + `() (list []mysql.` + entityStruct + `, cursor int64, noMore bool) {
+func (self *` + fileNamePascalCase + `Service) ` + funcName + `() ( list []mysql.` + entityStruct + `, total int64) {
 `
 		content += `    page := 1
 	rows := 20
@@ -186,11 +210,6 @@ func (self *` + fileNamePascalCase + `Service) ` + funcName + `() (list []mysql.
 		app.Log.Error(err)
 		return
 	}
-	for i := 0; i <= lastIndex; i++ {
-		list = append(list, list[i])
-	}
-	cursor = list[lastIndex].Id
-	noMore = len(list) < limitRows
 	return
 }
 `

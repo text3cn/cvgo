@@ -9,7 +9,6 @@ import (
 	"github.com/textthree/cvgokit/arrkit"
 	"github.com/textthree/cvgokit/filekit"
 	"github.com/textthree/cvgokit/gokit"
-	"github.com/textthree/cvgokit/strkit"
 	"github.com/textthree/cvgokit/syskit"
 	"github.com/textthree/provider/clog"
 	"os"
@@ -20,7 +19,7 @@ import (
 // 模块目录下执行：
 // go build -o $GOPATH/bin/cvg
 // cvg add svc user/Userinfo c --table=user --cursor
-func GenService(fileName, funcName string, curdType string, tableName string, cursorPaging bool) {
+func GenService(fileName, funcName string, curdType string, tableName string, cursorPaging bool) string {
 	kv := kvs.Instance()
 	paths.CheckRunAtModuleRoot()
 	modulePath := paths.NewModulePath()
@@ -30,12 +29,12 @@ func GenService(fileName, funcName string, curdType string, tableName string, cu
 	oldSvcs, _ := kv.GetStringSlice(kvKey)
 	if arrkit.InArray(fileAndFunc, oldSvcs) {
 		clog.RedPrintln("Service", fileAndFunc, "已存在")
-		return
+		return ""
 	}
 
 	// 创建 service
 	fileNameLower := strings.ToLower(fileName)
-	fileNamePascalCase := strkit.Ucfirst(fileName)
+	serviceName := fileName
 	svcFile := filepath.Join(modulePath.ModuleServiceDir(), fileNameLower+".svc.go")
 	err := filekit.CreatePath(svcFile)
 	if err == nil {
@@ -46,17 +45,17 @@ import (
 	"sync"
 )
 	
-var ` + fileNameLower + `ServiceInstance *` + fileNamePascalCase + `Service
+var ` + fileNameLower + `ServiceInstance *` + serviceName + `Service
 var ` + fileNameLower + `ServiceOnce sync.Once
 	
-type ` + fileNamePascalCase + `Service struct {
+type ` + serviceName + `Service struct {
 	ctx *httpserver.Context
 	uid int64
 }
 	
-func ` + fileNamePascalCase + `Svc(ctx *httpserver.Context) *` + fileNamePascalCase + `Service {
+func ` + serviceName + `Svc(ctx *httpserver.Context) *` + serviceName + `Service {
 	` + fileNameLower + `ServiceOnce.Do(func() {
-	` + fileNameLower + `ServiceInstance = &` + fileNamePascalCase + `Service{
+	` + fileNameLower + `ServiceInstance = &` + serviceName + `Service{
 			ctx: ctx,
 			uid: ctx.GetVal("uid").ToInt64(),
 		}
@@ -71,12 +70,12 @@ func ` + fileNamePascalCase + `Svc(ctx *httpserver.Context) *` + fileNamePascalC
 	if curdType == "" {
 		content = `
 	// ` + funcName + `
-	func (self *` + fileNamePascalCase + `Service) ` + funcName + `() {
+	func (self *` + serviceName + `Service) ` + funcName + `() {
 	
 	}
 	`
 	} else {
-		content = createFuncWithCurd(curdType, tableName, svcFile, cursorPaging, funcName, fileNamePascalCase)
+		content = createFuncWithCurd(curdType, tableName, svcFile, cursorPaging, funcName, serviceName)
 	}
 	err = filekit.FileAppendContent(svcFile, content)
 	if err != nil {
@@ -84,26 +83,27 @@ func ` + fileNamePascalCase + `Svc(ctx *httpserver.Context) *` + fileNamePascalC
 	}
 	// 完成
 	kv.Set(kvKey, append(oldSvcs, fileAndFunc))
-	clog.GreenPrintln("生成方法 " + fileNameLower + ".svc.go -> " + funcName)
+	clog.GreenPrintln("创建 SVC 成功：" + fileNameLower + ".svc.go -> " + funcName + "()")
+	return serviceName
 }
 
-func createFuncWithCurd(curdType, tableName, svcFile string, cursorPaging bool, funcName, fileNamePascalCase string) string {
+func createFuncWithCurd(curdType, tableName, svcFile string, cursorPaging bool, funcName, serviceName string) string {
 	code := ""
 	originPath := filekit.Getwd()
 	paths.CdToWorkspacePath()
 	workspaceName := kvs.Instance().GetWorkspaceName()
 	switch curdType {
 	case "c":
-		//	code = common.CurdCreate(tableName, funcName, fileNamePascalCase)
-		code = syskit.ExecCmdText(fmt.Sprintf("go run scripts/cvgo/codegen/curdl.go c %s %s %s %s", tableName, funcName, fileNamePascalCase, ""))
+		//	code = common.CurdCreate(tableName, funcName, serviceName)
+		code = syskit.ExecCmdText(fmt.Sprintf("go run scripts/cvgo/codegen/curdl.go c %s %s %s %s", tableName, funcName, serviceName, ""))
 	case "u":
-		code = syskit.ExecCmdText(fmt.Sprintf("go run scripts/cvgo/codegen/curdl.go u %s %s %s %s", tableName, funcName, fileNamePascalCase, ""))
+		code = syskit.ExecCmdText(fmt.Sprintf("go run scripts/cvgo/codegen/curdl.go u %s %s %s %s", tableName, funcName, serviceName, ""))
 	case "r":
-		code = syskit.ExecCmdText(fmt.Sprintf("go run scripts/cvgo/codegen/curdl.go r %s %s %s %s", tableName, funcName, fileNamePascalCase, ""))
+		code = syskit.ExecCmdText(fmt.Sprintf("go run scripts/cvgo/codegen/curdl.go r %s %s %s %s", tableName, funcName, serviceName, ""))
 	case "d":
-		code = syskit.ExecCmdText(fmt.Sprintf("go run scripts/cvgo/codegen/curdl.go d %s %s %s %s", tableName, funcName, fileNamePascalCase, ""))
+		code = syskit.ExecCmdText(fmt.Sprintf("go run scripts/cvgo/codegen/curdl.go d %s %s %s %s", tableName, funcName, serviceName, ""))
 	case "l":
-		code = syskit.ExecCmdText(fmt.Sprintf("go run scripts/cvgo/codegen/curdl.go l %s %s %s %v", tableName, funcName, fileNamePascalCase, cursorPaging))
+		code = syskit.ExecCmdText(fmt.Sprintf("go run scripts/cvgo/codegen/curdl.go l %s %s %s %v", tableName, funcName, serviceName, cursorPaging))
 	}
 	os.Chdir(originPath)
 

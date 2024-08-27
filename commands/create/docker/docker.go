@@ -4,6 +4,7 @@ import (
 	"cvgo/paths"
 	"cvgo/tpl"
 	"fmt"
+	"github.com/textthree/cvgokit/filekit"
 	"github.com/textthree/provider/clog"
 )
 
@@ -13,6 +14,10 @@ import (
 func CreateDocker() {
 	workPath := paths.NewWorkPath()
 	cvgoPath := paths.NewCvgoPath()
+	if filekit.FileExist(workPath.DockerComposeEnv()) {
+		clog.RedPrintln("目标文件已存在，无法生成。", workPath.DockerComposeEnv())
+		return
+	}
 	err := tpl.CopyFileFromEmbed(tpl.DockerComposeEnv, cvgoPath.DockerComposeEnv(), workPath.DockerComposeEnv())
 	if err != nil {
 		fmt.Println(err)

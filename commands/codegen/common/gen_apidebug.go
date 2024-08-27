@@ -5,7 +5,11 @@ import (
 	"github.com/textthree/cvgokit/strkit"
 )
 
-func GenApidebug(apiDebugHtmlFilePath, requestPath, method string) {
+func GenApidebug(apiDebugHtmlFilePath, requestPath, method string, cursorPaging bool) {
+	cursor := ""
+	if cursorPaging {
+		cursor = "cursor: 0"
+	}
 	content := `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,7 +21,7 @@ func GenApidebug(apiDebugHtmlFilePath, requestPath, method string) {
 let method = "` + strkit.Strtoupper(method) + `"
 let url = configs.server + "/` + requestPath + `"
 let data = {
-
+	` + cursor + `
 }
 
 $.ajax({

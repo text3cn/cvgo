@@ -5,7 +5,6 @@ import (
 	"cvgo/kvs"
 	"cvgo/kvs/kvsKey"
 	"cvgo/paths"
-	"fmt"
 	"github.com/textthree/cvgokit/arrkit"
 	"github.com/textthree/cvgokit/filekit"
 	"github.com/textthree/cvgokit/gokit"
@@ -18,7 +17,14 @@ import (
 // 模块目录下执行：
 // go build -o $GOPATH/bin/cvg
 // cvg create-api get api/user/info
-func GenApi(method, requestPath string, supportSwagger bool, cvgflag string) {
+func GenApi(method, requestPath string, supportSwagger, cursorPaging bool, cvgflag string, svc ...string) {
+	var tableName, svcName, svcFuncName, curdlType string
+	if len(svc) > 0 {
+		tableName = svc[0]
+		svcName = svc[1]
+		svcFuncName = svc[2]
+		curdlType = svc[3]
+	}
 	path := paths.NewModulePath()
 	paths.CheckRunAtModuleRoot()
 	modName, _ := gokit.GetModuleName()
@@ -29,7 +35,7 @@ func GenApi(method, requestPath string, supportSwagger bool, cvgflag string) {
 		return
 	}
 	oldRoutes, _ := kv.GetStringSlice(kvsKey.ModuleRoute(modName))
-	if arrkit.InArray(requestPath, oldRoutes) {
+	if arrkit.InArray(requestPath+"["+method+"]", oldRoutes) {
 		clog.RedPrintln("API", requestPath, "已存在")
 		return
 	}
@@ -49,11 +55,12 @@ import (
 `
 		filekit.FilePutContents(apiFile, content)
 	}
-	funcName := strkit.Ucfirst(method) + strkit.Ucfirst(pathArr[1]) + strkit.Ucfirst(pathArr[2])
-	routePath := pathArr[1] + "/" + pathArr[2]
-	content := `` + addSwagger(supportSwagger, funcName, requestPath, method) + `
+	funcName := methodToCurd(method, curdlType) + strkit.Ucfirst(pathArr[1]) + strkit.Ucfirst(pathArr[2])
+
+	routePath := pathArr[1] + "/" + strkit.CamelToKebabCase(pathArr[2])
+	content := `` + addSwagger(supportSwagger, funcName, routePath, method) + `
 func ` + funcName + ` (ctx *httpserver.Context) {
-	` + addApiFuncCode(method) + `
+	` + addApiFuncCode(funcName, tableName, svcName, svcFuncName, curdlType, cursorPaging) + `
 }
 `
 	filekit.FileAppendContent(apiFile, content)
@@ -72,8 +79,14 @@ import (
 		content += "/*\n\ttype Example struct {\n\t    Field  int   `json:\"field\"  swaggertype:\"integer\" validate:\"required\" description:\"描述\" example:\"示例\"`\n\t    Field2 []int `json:\"field2\" swaggertype:\"array,number\"` // 字段注释\n\t}\n*/\n"
 		filekit.FilePutContents(dtoFile, content)
 	}
+	cursor := ""
+	if cursorPaging {
+		cursor = "    Cursor int64"
+	}
 	content = `
-type ` + funcName + `Req struct {}
+type ` + funcName + `Req struct {
+` + cursor + `
+}
 	
 type ` + funcName + `Res struct {
 	common.BaseRes
@@ -87,7 +100,6 @@ type ` + funcName + `Res struct {
 		if pathArr[0] != "root" {
 			space = `        `
 		}
-		fmt.Println("// cvgflag=" + cvgflag)
 		content = space + cvgflag + `.` + strkit.Ucfirst(method) + `("` + routePath + `", api.` + funcName + `)`
 		err = filekit.AddContentUnderLine(path.RoutingGo(), "// cvgflag="+cvgflag, content)
 		if err != nil {
@@ -96,23 +108,63 @@ type ` + funcName + `Res struct {
 	}
 
 	// 生 apidebug
-	apiDebugHtmlFile := filepath.Join(path.ModuleApiDebugDir(), pathArr[1], pathArr[2]+".html")
-	common.GenApidebug(apiDebugHtmlFile, requestPath, method)
+	fileName := pathArr[2] + strkit.Ucfirst(method) + ".html"
+	apiDebugHtmlFile := filepath.Join(path.ModuleApiDebugDir(), pathArr[1], fileName)
+	common.GenApidebug(apiDebugHtmlFile, requestPath, method, cursorPaging)
 
 	// 完成
-	kv.Set(modName+".routes", append(oldRoutes, requestPath))
-	clog.GreenPrintln("生成 API 成功")
+	kv.Set(modName+".routes", append(oldRoutes, requestPath+"["+method+"]"))
+	clog.GreenPrintln("创建 API 成功：", pathArr[1]+".api.go", "->", funcName+"()")
 }
 
 // qpi 基础代码
-func addApiFuncCode(method string) string {
-	content := `req := dto.GetUserInfoReq{}
-	res := dto.GetUserInfoRes{}
+func addApiFuncCode(funcName, tableName, svcName, svcFuncName, curdlType string, cursorPaging bool) string {
+	content := `req := dto.` + funcName + `Req{}
+	res := dto.` + funcName + `Res{}
 	if err := ctx.Req.JsonScan(&req); err != nil {
 		ctx.Resp.Json(cvgerr.ParseRequestParamsError())
 		return
+	}`
+
+	if tableName != "" {
+		switch curdlType {
+		case "c":
+			content += `
+	if err := service.` + strkit.Ucfirst(svcName) + `Svc(ctx).` + svcFuncName + `(); err != nil {
+		res.ApiCode = cvgerr.Fail
+		res.ApiMessage = err.Error()
+	}`
+
+		case "u":
+			content += `
+	if err := service.` + strkit.Ucfirst(svcName) + `Svc(ctx).` + svcFuncName + `(); err != nil {
+		res.ApiCode = cvgerr.Fail
+		res.ApiMessage = err.Error()
+	}`
+
+		case "r":
+			content += `
+	service.` + strkit.Ucfirst(svcName) + `Svc(ctx).` + svcFuncName + `()`
+
+		case "d":
+			content += `
+	if err := service.` + strkit.Ucfirst(svcName) + `Svc(ctx).` + svcFuncName + `(); err != nil {
+		res.ApiCode = cvgerr.Fail
+		res.ApiMessage = err.Error()
+	}`
+
+		case "l":
+			cursor := ""
+			if cursorPaging {
+				cursor = "req.Cursor"
+			}
+			content += `
+	service.` + strkit.Ucfirst(svcName) + `Svc(ctx).` + svcFuncName + `(` + cursor + `)`
+
+		}
 	}
 
+	content += `
 	ctx.Resp.Json(res)`
 	return content
 }
@@ -132,4 +184,25 @@ func addSwagger(supportSwagger bool, funcName, requestPath, method string) strin
 		return content
 	}
 	return ""
+}
+
+// 根据 curdl 转换成 Create / Update / Get/ Delete / List
+func methodToCurd(method, curdlType string) string {
+	if curdlType == "" {
+		return strkit.Ucfirst(method)
+	}
+	ret := ""
+	switch curdlType {
+	case "c":
+		ret = "Create"
+	case "u":
+		ret = "Update"
+	case "r":
+		ret = "Get"
+	case "d":
+		ret = "Delete"
+	case "l":
+		ret = "List"
+	}
+	return ret
 }

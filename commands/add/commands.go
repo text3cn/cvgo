@@ -35,10 +35,33 @@ func AddCommand(command *types.Command) {
 			kv.CheckInModuleDir()
 
 			// 检查 method
+			pass := false
+			useCurdl := false
 			allowMethod := []string{"get", "post", "put", "patch", "delete"}
-			if !arrkit.InArray(args[0], allowMethod) {
-				clog.RedPrintln("不支持的请求方法", args[0], "，支持的方法为：get / post / put / delete")
-				return
+			if arrkit.InArray(args[0], allowMethod) {
+				pass = true
+			}
+			// 检查 curdl 组合
+			if !pass {
+				pass = true
+				useCurdl = true
+				allowCurdl := []string{"c", "u", "r", "d", "l"}
+				for _, v := range args[0] {
+					if !arrkit.InArray(string(v), allowCurdl) {
+						pass = false
+					}
+				}
+			}
+			if !pass {
+				clog.RedPrintln("不支持的请求方法", args[0], "，支持的方法为：get / post / put / delete，或 curdl 组合")
+			}
+			var table string
+			if useCurdl {
+				table, _ = cmd.Flags().GetString("table")
+				if table == "" {
+					clog.RedPrintln("请使用 --table 选项指定表名称")
+					return
+				}
 			}
 			if len(args) < 2 {
 				clog.BrownPrintln("请指定 path（http 请求路径）")
@@ -47,16 +70,67 @@ func AddCommand(command *types.Command) {
 			webFramework := kv.GetWebFramework()
 			supportSwagger, _ := kv.GetSwagger()
 			cvgflag, _ := cmd.Flags().GetString("cvgflag")
+			cursorPaging, _ := cmd.Flags().GetBool("cursor")
+
 			switch webFramework {
 			case "cvgo":
-				gencvgo.GenApi(args[0], args[1], supportSwagger, cvgflag)
+				if table != "" {
+					for _, v := range args[0] {
+						pathArr := strkit.Explode("/", args[1])
+						switch string(v) {
+						case "c":
+							svcFuncName := "Create" + strkit.Ucfirst(pathArr[1]) + strkit.Ucfirst(pathArr[2])
+							svcName := gencvgo.GenService(pathArr[0], svcFuncName, "c", table, cursorPaging)
+							if svcName == "" {
+								table = ""
+							}
+							gencvgo.GenApi("post", args[1], supportSwagger, cursorPaging, cvgflag, table, svcName, svcFuncName, "c")
+						case "u":
+							svcFuncName := "Update" + strkit.Ucfirst(pathArr[1]) + strkit.Ucfirst(pathArr[2])
+							svcName := gencvgo.GenService(pathArr[1], svcFuncName, "u", table, cursorPaging)
+							if svcName == "" {
+								table = ""
+							}
+							gencvgo.GenApi("put", args[1], supportSwagger, cursorPaging, cvgflag, table, svcName, svcFuncName, "u")
+						case "r":
+							svcFuncName := "Get" + strkit.Ucfirst(pathArr[1]) + strkit.Ucfirst(pathArr[2])
+							svcName := gencvgo.GenService(pathArr[1], svcFuncName, "r", table, cursorPaging)
+							if svcName == "" {
+								table = ""
+							}
+							gencvgo.GenApi("get", args[1], supportSwagger, cursorPaging, cvgflag, table, svcName, svcFuncName, "r")
+						case "d":
+							svcFuncName := "Delete" + strkit.Ucfirst(pathArr[1]) + strkit.Ucfirst(pathArr[2])
+							svcName := gencvgo.GenService(pathArr[1], svcFuncName, "d", table, cursorPaging)
+							if svcName == "" {
+								table = ""
+							}
+							gencvgo.GenApi("delete", args[1], supportSwagger, cursorPaging, cvgflag, table, svcName, svcFuncName, "d")
+						case "l":
+							svcFuncName := "List" + strkit.Ucfirst(pathArr[1]) + strkit.Ucfirst(pathArr[2])
+							svcName := gencvgo.GenService(pathArr[1], svcFuncName, "l", table, cursorPaging)
+							if svcName == "" {
+								table = ""
+							}
+							requestPath := args[1] + "List"
+							gencvgo.GenApi("post", requestPath, supportSwagger, cursorPaging, cvgflag, table, svcName, svcFuncName, "l")
+						}
+					}
+				} else {
+					gencvgo.GenApi(args[0], args[1], supportSwagger, cursorPaging, cvgflag)
+				}
+
 			default:
 				clog.CyanPrintln(webFramework + " 暂不支持，目前只支持 cvgo")
 			}
 		},
 	}
 	var cvgflag string
+	var table string
+	var cursor bool
 	api.Flags().StringVar(&cvgflag, "cvgflag", "", "路由生成标记")
+	api.Flags().StringVar(&table, "table", "", "同时生成 service 方法")
+	api.Flags().BoolVar(&cursor, "cursor", false, "列表是否使用游标分页")
 	addCmd.AddCommand(api)
 
 	// service
@@ -88,15 +162,15 @@ func AddCommand(command *types.Command) {
 						funcName := ""
 						switch u {
 						case "c":
-							funcName = "Create" + pathArr[1]
+							funcName = "Create" + strkit.Ucfirst(pathArr[1])
 						case "u":
-							funcName = "Update" + pathArr[1]
+							funcName = "Update" + strkit.Ucfirst(pathArr[1])
 						case "r":
-							funcName = "Get" + pathArr[1]
+							funcName = "Get" + strkit.Ucfirst(pathArr[1])
 						case "d":
-							funcName = "Delete" + pathArr[1]
+							funcName = "Delete" + strkit.Ucfirst(pathArr[1])
 						case "l":
-							funcName = "List" + pathArr[1]
+							funcName = "List" + strkit.Ucfirst(pathArr[1])
 						}
 						gencvgo.GenService(pathArr[0], funcName, u, tableName, cursorPaging)
 					}

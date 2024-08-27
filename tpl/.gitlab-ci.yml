@@ -1,0 +1,12 @@
+stages:
+  - build
+
+deploy:
+  stage: build
+  only:
+    - main
+  script:
+    - export GOROOT=/opt/go  # go 安装在 /opt/go 中
+    - export PATH=$PATH:$GOROOT/bin
+    - cd app/cvgo && go build -o cvgo main.go
+
